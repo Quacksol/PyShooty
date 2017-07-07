@@ -23,7 +23,6 @@ screen.fill(BLACK)  # Make screen black to start off
 
 pygame.display.set_caption("Real Life Video Game")
 
-dodongo
 
 def setup_nodes():
     """
