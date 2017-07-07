@@ -18,7 +18,7 @@ class Bullet(fadeStuff.drawObject):
     def __init__(self, position, direction, speed):
         self.x = position[0]
         self.y = position[1]
-        self.angle = 90 * direction
+        self.angle = math.radians(90) * direction
         self.speed = speed
 
     def move(self):
@@ -29,6 +29,9 @@ class Bullet(fadeStuff.drawObject):
         self.x += math.cos(self.angle) * self.speed
         self.y += math.sin(self.angle) * self.speed
         self.speed -= self.speedDecay
+
+    def update(self):
+        self.do_fader()
 
 
 class Gun:
@@ -44,27 +47,25 @@ class Gun:
     shot = False  # Did the gun JUST shoot? If so, don't recharge for this frame.
 
     bullet = None  # Bullet class allocated to this gun. Objects of this class will be mde when shooting
-    angle = 0
 
     #  Should recharge rate or max ammo be constant? Only one needs to be
 
     def __init__(self, direction):
-        self.angle = 90 * direction
+        self.direction = direction - 1
         self.ammo = self.maxAmmo
 
     def shoot(self, position, speed):
         """
         When a button is pressed, player gets the gun object attached to that button
         Then the gun object makes the bullets, sets variables, etc
-        Direction will be needed as an input
-        :param direction: 0-3, specifies the direction the bullet will go, rotation, etc
-        :return: None, but inside the function the bullet is added to a list?
+        :param position: The player's location
+        :return: Newly made bullet object
         """
         newBullet = None
         if self.ammo >= self.depletionRate+1:
             self.shot = True
             self.ammo -= self.depletionRate
-            #newBullet = self.bullet(position, self.angle, speed)  # Make a bullet object with direction TODO actually implement bullet lol
+            newBullet = self.bullet(position, self.direction, speed)  # Make a bullet object with direction TODO actually implement bullet lol
         return newBullet
 
     def recharge(self):
@@ -88,23 +89,33 @@ class Gun:
 class SprayGunBullet(Bullet):
     def __init__(self, position, direction, speed):
         super(SprayGunBullet, self).__init__(position, direction, speed)
+
         self.timeToLive = 300
-        self.speed = speed + random.randint(-5, 5)      # todo change
-        self.angle = 90 * direction                     # todo change
+        self.speed = math.fabs(speed) + random.randrange(0, 20, 1)/10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
+        self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))          # todo change
         self.speedDecay = 10
         self.colour = WHITE
 
-    def draw(self, position):
-        super(SprayGunBullet, self).draw(position)
-        pygame.draw.circle(screen, self.colour, [int(self.x), int(self.y)], 30, 0)
+        size = 1
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface([size*2, size*2])
+        self.rect = self.image.get_rect()
+        pygame.draw.circle(self.image, self.colour, (size, size), size, 0)
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def update(self):
+        self.x += math.cos(self.angle) * self.speed
+        self.y += math.sin(self.angle) * self.speed
+
+        self.rect = [self.x, self.y]
 
 
 class SprayGun(Gun):
     def __init__(self, direction):
         super(SprayGun, self).__init__(direction)
-        self.depletionRate = 1
-        self.rechargeRate = 2
+        self.depletionRate = 2
+        self.rechargeRate = 1
         self.bullet = SprayGunBullet
-        self.direction = direction
 
 

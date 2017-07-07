@@ -71,8 +71,7 @@ class Player(fadeStuff.drawObject):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.radius*2, self.radius*2])
-        self.image.fill(BLACK)
-        pygame.draw.circle(self.image, self.colour, (self.radius, self.radius), self.radius, 1)
+        self.rect = self.image.get_rect()
 
         self.node = [math.ceil(xNodes / 2), math.ceil(yNodes / 2)]
         xy = get_node_pos(self.node)
@@ -107,7 +106,7 @@ class Player(fadeStuff.drawObject):
                 self.destX = get_node_pos(self.node)[0]
         # print(self.node)
 
-    def update_pos(self):
+    def update(self):
         speed = 0
         if not self.x == self.destX:
             diff = self.destX - self.x
@@ -123,19 +122,44 @@ class Player(fadeStuff.drawObject):
                 self.y += speed
             else:
                 self.y = self.destY
+
+        self.image = pygame.Surface([self.radius*2, self.radius*2])
+        self.image.fill(BLACK)
+        pygame.draw.circle(self.image, self.colour, (self.radius, self.radius), self.radius, 1)
+        self.image.set_colorkey(BLACK)
+
+        self.rect.center = (self.x, self.y)
         #self.x = math.floor(self.x)
         #self.y = math.floor(self.y)
         self.speed = speed
 
+        self.do_fader(self.image, (self.x, self.y))
+
+        # Cool colour stuff, probably won't stay
+        if self.r == 255:
+            if not self.b == 0:
+                self.b -= self.colourChangeRate
+            else:
+                self.g += self.colourChangeRate
+        if self.g == 255:
+            if not self.r == 0:
+                self.r -= self.colourChangeRate
+            else:
+                self.b += self.colourChangeRate
+        if self.b == 255:
+            if not self.g == 0:
+                self.g -= self.colourChangeRate
+            else:
+                self.r += self.colourChangeRate
+
+        self.colour = pygame.Color(self.r, self.g, self.b)
+        pygame.draw.circle(self.image, self.colour, (self.radius, self.radius), self.radius, 1)
+
     def shoot(self, dr):
         bullet = self.equippedGuns[dr].shoot([self.x, self.y], self.speed)
         if bullet:
+            allSprites.add(bullet)
             bulletList.append(bullet)
-
-    def draw(self, position):
-        super(Player, self).draw([int(position[0]), int(position[1])])
-        for item in self.drawList:
-            pygame.draw.circle(screen, item.colour, [int(item.position[0]), int(item.position[1])], player.radius, 1)
 
 
 
@@ -146,6 +170,7 @@ done = False
 clock = pygame.time.Clock()
 
 # -------- Game stuff -------
+allSprites = pygame.sprite.Group()
 drawList = []
 bulletList = []
 
@@ -155,10 +180,10 @@ yNodes = 9
 playerNodes = setup_nodes()
 
 player = Player()
-drawList.append(player)
+allSprites.add(player)
 # -------- Main Program Loop -----------
 while not done:
-    # --- Main event loop
+    # --- Input logic here
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
@@ -189,48 +214,35 @@ while not done:
         pass
 
     # --- Game logic should go here
-    if player.r == 255:
-        if not player.b == 0:
-            player.b -= player.colourChangeRate
-        else:
-            player.g += player.colourChangeRate
-    if player.g == 255:
-        if not player.r == 0:
-            player.r -= player.colourChangeRate
-        else:
-            player.b += player.colourChangeRate
-    if player.b == 255:
-        if not player.g == 0:
-            player.g -= player.colourChangeRate
-        else:
-            player.r += player.colourChangeRate
 
-    player.colour = pygame.Color(player.r, player.g, player.b)
-    player.update_pos()
+    allSprites.update()
     for gun in player.equippedGuns:
         gun.recharge()
+
+    for thing in bulletList:    # Todo this shouldn't be in the draw section
+        thing.timeToLive -= 10
+        if thing.timeToLive <= 0:
+            bulletList.remove(thing)
+            allSprites.remove(thing)
+
+
+
 
     # --- Drawing code should go here
     screen.fill(BLACK)
 
-    i = 0
+    gunPositionModifier = 0
     for gun in player.equippedGuns:
-        i += 20
-        b = (gun.ammo/gun.maxAmmo)
-        a = (WIDTH - 100) + b * 90
-        pygame.draw.line(screen, WHITE, [WIDTH - 100, HEIGHT - 20 - i], [a, HEIGHT - 20 - i], 4)
+        gunPositionModifier += 20
+        pygame.draw.line(screen, WHITE, [WIDTH - 100, HEIGHT - 20 - gunPositionModifier], [(WIDTH - 100) + (gun.ammo/gun.maxAmmo) * 90, HEIGHT - 20 - gunPositionModifier], 4)
 
     for pos in playerNodes:
         pygame.draw.line(screen, WHITE, pos, pos, 1)
 
-    for thing in drawList:
-        thing.draw([thing.x, thing.y])
-    for thing in bulletList:
-        thing.timeToLive -= 1
-        if thing.timeToLive <= 0:
-            bulletList.remove(thing)
-        else:
-            thing.draw([thing.x, thing.y])
+    # allSprites.clear(screen, background) # Don't think this is required
+    allSprites.update()
+    allSprites.draw(screen)
+
     # As the player moves so fast, there are gaps between where the player moved from.
     # Looks kinda naff
     # Draw line from where player was last to where is now?

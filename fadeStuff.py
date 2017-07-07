@@ -1,29 +1,22 @@
 from definitions import *
-fadeRate = 1
+fadeRate = 10
 
 
-def fade(theList, item):
-    """
-    Gets a colour, decreases it a bit. Checks it's close to BLACK, and removes from a list.
-    :param item: the item passed in, which has a colour property.
-    :param theList: list to remove from, if necessary.
-    :return: darkened colour, to be be drawn be specific function
-    """
-    # Set pixel colour to less than what it is now
-    col = item.colour
-    col.hsla = [col.hsla[0], col.hsla[1], max((col.hsla[2] - fadeRate), 0), col.hsla[3]]
-    if col.r < 10 and col.g < 10 and col.b < 10:
-        # Remove from pixList, set pixel to BLACK
-        theList.remove(item)
-        col = BLACK
+class fadeSprite(pygame.sprite.Sprite):
+    def __init__(self, image, position):
+        pygame.sprite.Sprite.__init__(self)
+        self.alpha = 255
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.center = position
 
-    return col
-
-
-class fadeSprite:
-    def __init__(self, position, col):
-        self.position = position
-        self.colour = col
+    def fade(self):
+        kill = False
+        self.image.set_alpha(self.alpha)
+        self.alpha -= fadeRate
+        if self.alpha <= 0:
+            kill = True
+        return kill
 
 
 class drawObject(pygame.sprite.Sprite):
@@ -32,18 +25,19 @@ class drawObject(pygame.sprite.Sprite):
     Contains variables that every drawn object has, namely position, a list of 'fade objects' and the fadeObjects' colours.
     This is an abstract class.
     """
-    x = 0   # X coord
-    y = 0   # Y coord
-    drawList = []  # Contains positions for fadey items. For each position, draw fadey item.
+    drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
     colour = WHITE
 
-    def draw(self, position):
+    def do_fader(self, image, position):
         """
         This should be inherited by every child class. Each child needs to define its own actual drawing, though.
         :return:
         """
-        newFadeSprite = fadeSprite(position, self.colour)
-        self.drawList.append(newFadeSprite)
+
+        newFadeSprite = fadeSprite(image, position)
+        self.drawList.add(newFadeSprite)
         for item in self.drawList:
-            item.colour = fade(self.drawList, item)
-        pass
+            kill = item.fade()
+            if kill:
+                self.drawList.remove(item)
+        self.drawList.draw(screen)
