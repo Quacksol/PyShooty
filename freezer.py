@@ -1,3 +1,6 @@
+"""
+I don't know how this works, but it sort of does - if you have cx_freeze installed, this should make an exe of the game.
+"""
 from cx_Freeze import setup, Executable
 import sys
 

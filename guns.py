@@ -65,7 +65,7 @@ class Gun:
         if self.ammo >= self.depletionRate+1:
             self.shot = True
             self.ammo -= self.depletionRate
-            newBullet = self.bullet(position, self.direction, speed)  # Make a bullet object with direction TODO actually implement bullet lol
+            newBullet = self.bullet(position, self.direction, speed)  # Make a bullet object with direction TODO fix speed
         return newBullet
 
     def recharge(self):
@@ -109,6 +109,7 @@ class SprayGunBullet(Bullet):
         self.y += math.sin(self.angle) * self.speed
 
         self.rect = [self.x, self.y]
+        self.do_fader(self.image, (self.x, self.y))
 
 
 class SprayGun(Gun):

@@ -33,7 +33,7 @@ class drawObject(pygame.sprite.Sprite):
         This should be inherited by every child class. Each child needs to define its own actual drawing, though.
         :return:
         """
-
+        # TODO only 1 fadeSprite per position, otherwise that position will appear really bright.
         newFadeSprite = fadeSprite(image, position)
         self.drawList.add(newFadeSprite)
         for item in self.drawList:

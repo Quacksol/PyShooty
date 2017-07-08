@@ -276,11 +276,6 @@ while not done:
 
     # --- Drawing code should go here
     screen.fill(BLACK)
-    if 0:   # todo remove - replaced by dylan's stuff
-        gunPositionModifier = 0
-        for gun in player.equippedGuns:
-            gunPositionModifier += 20
-            pygame.draw.line(screen, WHITE, [WIDTH - 100, HEIGHT - 20 - gunPositionModifier], [(WIDTH - 100) + (gun.ammo/gun.maxAmmo) * 90, HEIGHT - 20 - gunPositionModifier], 4)
 
     for pos in playerNodes:
         pygame.draw.line(screen, WHITE, pos, pos, 1)
