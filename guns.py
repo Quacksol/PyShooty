@@ -92,7 +92,7 @@ class SprayGunBullet(Bullet):
 
         self.timeToLive = 300
         self.speed = math.fabs(speed) + random.randrange(0, 20, 1)/10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
-        self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))          # todo change
+        self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
         self.colour = WHITE
 

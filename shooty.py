@@ -134,6 +134,7 @@ class Player(fadeStuff.drawObject):
         self.speed = speed
 
         self.do_fader(self.image, (self.x, self.y))
+        self.draw_ammo()
 
         # Cool colour stuff, probably won't stay
         if self.r == 255:
@@ -161,6 +162,51 @@ class Player(fadeStuff.drawObject):
             allSprites.add(bullet)
             bulletList.append(bullet)
 
+    def draw_ammo(self):    # TODO rename variables, tidy up a bit
+        ammoBarPositionModifier = 0
+        for gun in self.equippedGuns:
+            ammoBarPositionModifier += 20
+            b = (gun.ammo / gun.maxAmmo)
+            a = (WIDTH - 100) + b * 90
+
+            barWidth = (WIDTH - 100) + 90  # For getting a constant bar width ~ Dylan
+
+            w = 4  # So I don't have to keep typing 4 ~ Dylan
+
+            # ADDITION #1 - 'Running out of ammo' change
+
+            c = WHITE
+
+            if b < 0.2:
+                c = RED  # If low % of ammo remaining, change bar to red ~ Dylan
+
+            # ////////////////////////////////////////////
+
+            # (location, colour, pointA, pointB, line thickness) - points as X, Y
+            # point defined as (X, Y)
+
+            pygame.draw.line(screen, c, [WIDTH - 100, HEIGHT - 20 - ammoBarPositionModifier], [a, HEIGHT - 20 - ammoBarPositionModifier], w)  # TODO The ammo bars are backwards
+
+            # ADDITION #2  - Simple ammo counter
+
+            lineWidth = barWidth - (WIDTH - 100)  # how long is the ammo bar? ~ Dylan
+
+            ammoCount = 3  # would get from gun.maxAmmo if ammunition differed between weapons.
+            # ammoCounts of 1 to ~50 show well, beyond that it becomes hard to read ~ Dylan
+
+            increment = lineWidth / ammoCount  # how many pieces to split the ammo bar into ~ Dylan
+
+            j = 0
+            while j < ammoCount:
+                offset = j * increment
+                pygame.draw.line(screen, BLACK, [WIDTH - 100 + offset, HEIGHT - 20 - ammoBarPositionModifier - 3],
+                                 [WIDTH - 100 + offset, HEIGHT - 20 - ammoBarPositionModifier + 3], 1)
+                j += 1
+
+                # Take max ammo, divide length of bar by amount of bullets
+                # Add lines at increments of the bar.
+
+                # If the ammo bars are going to have outlines, we could just blit the outline over the coloured bar.
 
 
 # Loop until the user clicks the close button.
@@ -219,7 +265,7 @@ while not done:
     for gun in player.equippedGuns:
         gun.recharge()
 
-    for thing in bulletList:    # Todo this shouldn't be in the draw section
+    for thing in bulletList:
         thing.timeToLive -= 10
         if thing.timeToLive <= 0:
             bulletList.remove(thing)
@@ -230,11 +276,11 @@ while not done:
 
     # --- Drawing code should go here
     screen.fill(BLACK)
-
-    gunPositionModifier = 0
-    for gun in player.equippedGuns:
-        gunPositionModifier += 20
-        pygame.draw.line(screen, WHITE, [WIDTH - 100, HEIGHT - 20 - gunPositionModifier], [(WIDTH - 100) + (gun.ammo/gun.maxAmmo) * 90, HEIGHT - 20 - gunPositionModifier], 4)
+    if 0:   # todo remove - replaced by dylan's stuff
+        gunPositionModifier = 0
+        for gun in player.equippedGuns:
+            gunPositionModifier += 20
+            pygame.draw.line(screen, WHITE, [WIDTH - 100, HEIGHT - 20 - gunPositionModifier], [(WIDTH - 100) + (gun.ammo/gun.maxAmmo) * 90, HEIGHT - 20 - gunPositionModifier], 4)
 
     for pos in playerNodes:
         pygame.draw.line(screen, WHITE, pos, pos, 1)
