@@ -25,16 +25,18 @@ class drawObject(pygame.sprite.Sprite):
     Contains variables that every drawn object has, namely position, a list of 'fade objects' and the fadeObjects' colours.
     This is an abstract class.
     """
-    drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
     colour = WHITE
 
-    def do_fader(self, image, position):
+    def __init__(self):
+        self.drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
+
+    def do_fader(self):
         """
         This should be inherited by every child class. Each child needs to define its own actual drawing, though.
         :return:
         """
         # TODO only 1 fadeSprite per position, otherwise that position will appear really bright.
-        newFadeSprite = fadeSprite(image, position)
+        newFadeSprite = fadeSprite(self.image, (self.x, self.y))
         self.drawList.add(newFadeSprite)
         for item in self.drawList:
             kill = item.fade()

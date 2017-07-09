@@ -15,3 +15,6 @@ size = (WIDTH, HEIGHT)
 
 screen = pygame.display.set_mode(size)
 
+fps = 60  # Tasty
+dt = 0  # Used to count a second
+

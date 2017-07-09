@@ -35,7 +35,7 @@ def setup_nodes():
     nodes = []
     for j in range(yNodes):
         for i in range(xNodes):
-            nodes.append([i*(WIDTH/xNodes)+(WIDTH/xNodes)/2, j*(HEIGHT/yNodes)+(HEIGHT/yNodes)/2])
+            nodes.append([i * (WIDTH / xNodes) + (WIDTH / xNodes) / 2, j * (HEIGHT / yNodes) + (HEIGHT / yNodes) / 2])
     return nodes
 
 
@@ -72,11 +72,12 @@ class Player(fadeStuff.drawObject):
     equippedGuns = []
 
     def __init__(self):
+        super(Player, self).__init__()
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([self.radius*2, self.radius*2])
-		
-		# Modification for collision detection
-		
+        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
+
+        # Modification for collision detection
+
         self.rect = self.image.get_rect()
 
         self.node = [math.ceil(xNodes / 2), math.ceil(yNodes / 2)]
@@ -85,11 +86,11 @@ class Player(fadeStuff.drawObject):
         self.y = xy[1]
         self.destX = self.x
         self.destY = self.y
-		
-		# Modification for collision detection
-		
+
+        # Modification for collision detection
+
         h = self.radius
-        self.rect = pygame.Rect(self.x - h/2, self.y - h/2, h*2, h*2)
+        self.rect = pygame.Rect(self.x - h / 2, self.y - h / 2, h * 2, h * 2)
 
         for i in range(4):
             self.equippedGuns.append(guns.SprayGun(i))
@@ -115,7 +116,7 @@ class Player(fadeStuff.drawObject):
             if self.node[0] - 1 > 0:
                 self.node[0] -= 1
                 self.destX = get_node_pos(self.node)[0]
-        # print(self.node)
+                # print(self.node)
 
     def update(self):
         speed = 0
@@ -134,25 +135,25 @@ class Player(fadeStuff.drawObject):
             else:
                 self.y = self.destY
 
-        self.image = pygame.Surface([self.radius*2, self.radius*2])
+        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
         self.image.fill(BLACK)
         pygame.draw.circle(self.image, self.colour, (self.radius, self.radius), self.radius, 1)
         self.image.set_colorkey(BLACK)
-		
-		# Modification for collision detection
-		
+
+        # Modification for collision detection
+
         h = self.radius
 
-        self.rect = pygame.Rect(self.x - h/2, self.y - h/2, h*2, h*2)
-		
-		# -----------------------------------
+        self.rect = pygame.Rect(self.x - h / 2, self.y - h / 2, h * 2, h * 2)
+
+        # -----------------------------------
 
         self.rect.center = (self.x, self.y)
-        #self.x = math.floor(self.x)
-        #self.y = math.floor(self.y)
+        # self.x = math.floor(self.x)
+        # self.y = math.floor(self.y)
         self.speed = speed
 
-        self.do_fader(self.image, (self.x, self.y))
+        self.do_fader()
         self.draw_ammo()
 
         # Cool colour stuff, probably won't stay
@@ -178,10 +179,9 @@ class Player(fadeStuff.drawObject):
     def shoot(self, dr):
         bullet = self.equippedGuns[dr].shoot([self.x, self.y], self.speed)
         if bullet:
-            allSprites.add(bullet)
-            bulletList.append(bullet)
+            bulletList.add(bullet)
 
-    def draw_ammo(self):    # TODO rename variables, tidy up a bit
+    def draw_ammo(self):  # TODO rename variables, tidy up a bit
         ammoBarPositionModifier = 0
         for gun in self.equippedGuns:
             ammoBarPositionModifier += 20
@@ -204,7 +204,8 @@ class Player(fadeStuff.drawObject):
             # (location, colour, pointA, pointB, line thickness) - points as X, Y
             # point defined as (X, Y)
 
-            pygame.draw.line(screen, c, [WIDTH - 100, HEIGHT - 20 - ammoBarPositionModifier], [a, HEIGHT - 20 - ammoBarPositionModifier], w)  # TODO The ammo bars are backwards
+            pygame.draw.line(screen, c, [WIDTH - 100, HEIGHT - 20 - ammoBarPositionModifier],
+                             [a, HEIGHT - 20 - ammoBarPositionModifier], w)  # TODO The ammo bars are backwards
 
             # ADDITION #2  - Simple ammo counter
 
@@ -236,9 +237,8 @@ clock = pygame.time.Clock()
 
 # -------- Game stuff -------
 allSprites = pygame.sprite.Group()
-drawList = []
-bulletList = []
-enemyList = []
+bulletList = pygame.sprite.Group()
+enemyList = pygame.sprite.Group()
 
 # 15:9 is a good ratio
 xNodes = 15
@@ -248,8 +248,8 @@ playerNodes = setup_nodes()
 player = Player()
 allSprites.add(player)
 
-enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)]) # - for testing
-enemyList.append(enemy)
+enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
+enemyList.add(enemy)
 allSprites.add(enemy)
 # -------- Main Program Loop -----------
 while not done:
@@ -283,55 +283,55 @@ while not done:
     if keys[pygame.K_SPACE]:
         pass
 
-    # --- Game logic should go here
-	
-	# enemy behaviour
-	# (apologies - this is a mess. We'll have to consider if another class is required for this)
-	
-    maxEnemies = 2 # maxEnemies on screen at once: increase this for crazy results
-	
-    while len(enemyList) < maxEnemies:
-	        # We'll need more sophisticated code for finding spawn positions just outside of the screen border
-			# Right now an enemy can spawn in the middle of the screen
-            enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)]) # - for testing
-            enemyList.append(enemy)
-            allSprites.add(enemy)
-	
-    for enemy in enemyList:
-        enemy.act([player.x, player.y]) # take action based on the player's position
+        # --- Game logic should go here
 
-        if enemy.dead == True:
+    # enemy behaviour
+    # (apologies - this is a mess. We'll have to consider if another class is required for this)
+
+    maxEnemies = 2  # maxEnemies on screen at once: increase this for crazy results
+
+    while len(enemyList) < maxEnemies:
+        # We'll need more sophisticated code for finding spawn positions just outside of the screen border
+        # Right now an enemy can spawn in the middle of the screen
+        enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
+        enemyList.add(enemy)
+        allSprites.add(enemy)
+
+    for enemy in enemyList:
+        enemy.act([player.x, player.y])  # take action based on the player's position
+
+        if enemy.dead:
             enemyList.remove(enemy)
             allSprites.remove(enemy)
-			
-	# -------------------------------------- (It's a mess - sorry) -----------------	
+
+        # -------------------------------------- (It's a mess - sorry) -----------------
 
     allSprites.update()
     for gun in player.equippedGuns:
         gun.recharge()
-		
-	# collision check
-    for bullet in bulletList:
+
+    # collision check
+    for bullet in bulletList:  # TODO I think there's a much less intensive collision method, which asks if members of a group collided, then checks what the collider was. I did it before, I'll try and find it
         for enemy in enemyList:
             if bullet.rect.colliderect(enemy.rect):
                 enemy.take_damage(bullet.damage)
                 bullet.destroy()
-	
-	# (Crude player death script - disappearing = death)
+
+            # (Crude player death script - disappearing = death)
     for enemy in enemyList:
         if enemy.rect.colliderect(player.rect):
-                allSprites.remove(player)
-       
-	 #(Experiment code: you can get enemies to crash into each-other)
+            allSprites.remove(player)  # TODO player take damage/death animation, respawning.
+
+            # (Experiment code: you can get enemies to crash into each-other)
         for enemy2 in enemyList:
             if enemy != enemy2:
                 if enemy.rect.colliderect(enemy2.rect):
                     enemy.death()
                     enemy2.death()
-					
-	# 'BALANCED' ALTERNATIVE TO ABOVE 'CRASH' CODE - DOESN'T WORK - UNSURE WHY
-	#  IDEA: Take the health of the other ship in the collision, treat it as damage to this ship
-    #    for enemy2 in enemyList:
+
+                # 'BALANCED' ALTERNATIVE TO ABOVE 'CRASH' CODE - DOESN'T WORK - UNSURE WHY
+                #  IDEA: Take the health of the other ship in the collision, treat it as damage to this ship
+    # for enemy2 in enemyList:
     #        if enemy.rect.colliderect(enemy2.rect):
     #            if enemy != enemy2:
     #                health1 = enemy.health
@@ -344,10 +344,6 @@ while not done:
         thing.timeToLive -= 10
         if thing.timeToLive <= 0:
             bulletList.remove(thing)
-            allSprites.remove(thing)
-
-
-
 
     # --- Drawing code should go here
     screen.fill(BLACK)
@@ -359,18 +355,24 @@ while not done:
     allSprites.update()
     allSprites.draw(screen)
 
+    bulletList.update()
+    bulletList.draw(screen)
+
     # As the player moves so fast, there are gaps between where the player moved from.
     # Looks kinda naff
     # Draw line from where player was last to where is now?
     # Fade depending on distance to player/object who made trace?
 
-    #circList.append([player.x, player.y, player.radius, pygame.Color(player.r, player.g, player.b, 100)])
+    # circList.append([player.x, player.y, player.radius, pygame.Color(player.r, player.g, player.b, 100)])
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 
     # --- Limit to 60 frames per second
-    clock.tick(60)
+    clock.tick(fps)
+    dt += 1
+    if dt == fps:
+        dt = 0
     # print(clock.get_fps())
 
 # Close the window and quit.

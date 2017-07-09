@@ -13,11 +13,12 @@ class Bullet(fadeStuff.drawObject):
     angle = 0  # Angle being shot at
     speed = 0  # Speed travelling at
     speedDecay = 0  # Rate of decay of speed, unique and constant for bullet type
-    colour = None   # Main colour
-	
+    colour = None  # Main colour
+
     damage = 0
 
     def __init__(self, position, direction, speed):
+        super(Bullet, self).__init__()
         self.x = position[0]
         self.y = position[1]
         self.angle = math.radians(90) * direction
@@ -36,7 +37,7 @@ class Bullet(fadeStuff.drawObject):
         self.do_fader()
 
     def destroy(self):
-        #self.colour = BLACK
+        # self.colour = BLACK
         self.timeToLive = 0
 
 
@@ -68,10 +69,11 @@ class Gun:
         :return: Newly made bullet object
         """
         newBullet = None
-        if self.ammo >= self.depletionRate+1:
+        if self.ammo >= self.depletionRate + 1:
             self.shot = True
             self.ammo -= self.depletionRate
-            newBullet = self.bullet(position, self.direction, speed)  # Make a bullet object with direction TODO fix speed
+            newBullet = self.bullet(position, self.direction,
+                                    speed)  # Make a bullet object with direction TODO fix speed
         return newBullet
 
     def recharge(self):
@@ -89,6 +91,7 @@ class Gun:
         else:
             self.shot = False
 
+
 # --------------------------------------------------------------------------------------------------------------------
 
 
@@ -97,33 +100,34 @@ class SprayGunBullet(Bullet):
         super(SprayGunBullet, self).__init__(position, direction, speed)
 
         self.timeToLive = 300
-        self.speed = math.fabs(speed) + random.randrange(0, 20, 1)/10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
+        self.speed = math.fabs(speed) + random.randrange(0, 20,
+                                                         1) / 10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
         self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
         self.colour = WHITE
-		
-        self.damage = 1 # - weak bullets
+
+        self.damage = 1  # - weak bullets
 
         size = 1
-		
+
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([size*2, size*2])
+        self.image = pygame.Surface([size * 2, size * 2])
         self.rect = self.image.get_rect()
         pygame.draw.circle(self.image, self.colour, (size, size), size, 0)
-        #self.rect.x = self.x
-        #self.rect.y = self.y
-		
-        self.rect = pygame.Rect(self.x, self.y, size, size) # - test
+        # self.rect.x = self.x
+        # self.rect.y = self.y
+
+        self.rect = pygame.Rect(self.x, self.y, size, size)  # - test
 
     def update(self):
         self.x += math.cos(self.angle) * self.speed
         self.y += math.sin(self.angle) * self.speed
 
-        #self.rect = [self.x, self.y]
-		
-        self.rect = pygame.Rect(self.x, self.y, 1, 1) # - test
-		
-        self.do_fader(self.image, (self.x, self.y))
+        # self.rect = [self.x, self.y]
+
+        self.rect = pygame.Rect(self.x, self.y, 1, 1)  # - test
+
+        self.do_fader()
 
 
 class SprayGun(Gun):
@@ -132,5 +136,3 @@ class SprayGun(Gun):
         self.depletionRate = 2
         self.rechargeRate = 1
         self.bullet = SprayGunBullet
-
-
