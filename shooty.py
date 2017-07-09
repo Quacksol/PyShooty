@@ -11,8 +11,11 @@
 
 import math
 
+import random
+
 import fadeStuff
 import guns
+import baddies
 from definitions import *
 
 pygame.init()
@@ -71,6 +74,9 @@ class Player(fadeStuff.drawObject):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.radius*2, self.radius*2])
+		
+		# Modification for collision detection
+		
         self.rect = self.image.get_rect()
 
         self.node = [math.ceil(xNodes / 2), math.ceil(yNodes / 2)]
@@ -79,6 +85,11 @@ class Player(fadeStuff.drawObject):
         self.y = xy[1]
         self.destX = self.x
         self.destY = self.y
+		
+		# Modification for collision detection
+		
+        h = self.radius
+        self.rect = pygame.Rect(self.x - h/2, self.y - h/2, h*2, h*2)
 
         for i in range(4):
             self.equippedGuns.append(guns.SprayGun(i))
@@ -127,6 +138,14 @@ class Player(fadeStuff.drawObject):
         self.image.fill(BLACK)
         pygame.draw.circle(self.image, self.colour, (self.radius, self.radius), self.radius, 1)
         self.image.set_colorkey(BLACK)
+		
+		# Modification for collision detection
+		
+        h = self.radius
+
+        self.rect = pygame.Rect(self.x - h/2, self.y - h/2, h*2, h*2)
+		
+		# -----------------------------------
 
         self.rect.center = (self.x, self.y)
         #self.x = math.floor(self.x)
@@ -219,6 +238,7 @@ clock = pygame.time.Clock()
 allSprites = pygame.sprite.Group()
 drawList = []
 bulletList = []
+enemyList = []
 
 # 15:9 is a good ratio
 xNodes = 15
@@ -227,6 +247,10 @@ playerNodes = setup_nodes()
 
 player = Player()
 allSprites.add(player)
+
+enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)]) # - for testing
+enemyList.append(enemy)
+allSprites.add(enemy)
 # -------- Main Program Loop -----------
 while not done:
     # --- Input logic here
@@ -260,10 +284,61 @@ while not done:
         pass
 
     # --- Game logic should go here
+	
+	# enemy behaviour
+	# (apologies - this is a mess. We'll have to consider if another class is required for this)
+	
+    maxEnemies = 2 # maxEnemies on screen at once: increase this for crazy results
+	
+    while len(enemyList) < maxEnemies:
+	        # We'll need more sophisticated code for finding spawn positions just outside of the screen border
+			# Right now an enemy can spawn in the middle of the screen
+            enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)]) # - for testing
+            enemyList.append(enemy)
+            allSprites.add(enemy)
+	
+    for enemy in enemyList:
+        enemy.act([player.x, player.y]) # take action based on the player's position
+
+        if enemy.dead == True:
+            enemyList.remove(enemy)
+            allSprites.remove(enemy)
+			
+	# -------------------------------------- (It's a mess - sorry) -----------------	
 
     allSprites.update()
     for gun in player.equippedGuns:
         gun.recharge()
+		
+	# collision check
+    for bullet in bulletList:
+        for enemy in enemyList:
+            if bullet.rect.colliderect(enemy.rect):
+                enemy.take_damage(bullet.damage)
+                bullet.destroy()
+	
+	# (Crude player death script - disappearing = death)
+    for enemy in enemyList:
+        if enemy.rect.colliderect(player.rect):
+                allSprites.remove(player)
+       
+	 #(Experiment code: you can get enemies to crash into each-other)
+        for enemy2 in enemyList:
+            if enemy != enemy2:
+                if enemy.rect.colliderect(enemy2.rect):
+                    enemy.death()
+                    enemy2.death()
+					
+	# 'BALANCED' ALTERNATIVE TO ABOVE 'CRASH' CODE - DOESN'T WORK - UNSURE WHY
+	#  IDEA: Take the health of the other ship in the collision, treat it as damage to this ship
+    #    for enemy2 in enemyList:
+    #        if enemy.rect.colliderect(enemy2.rect):
+    #            if enemy != enemy2:
+    #                health1 = enemy.health
+    #                health2 = enemy2.health
+    #                
+    #                enemy.take_damage(health2)
+    #                enemy2.take_damage(health1)
 
     for thing in bulletList:
         thing.timeToLive -= 10

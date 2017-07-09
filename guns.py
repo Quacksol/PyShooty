@@ -14,6 +14,8 @@ class Bullet(fadeStuff.drawObject):
     speed = 0  # Speed travelling at
     speedDecay = 0  # Rate of decay of speed, unique and constant for bullet type
     colour = None   # Main colour
+	
+    damage = 0
 
     def __init__(self, position, direction, speed):
         self.x = position[0]
@@ -32,6 +34,10 @@ class Bullet(fadeStuff.drawObject):
 
     def update(self):
         self.do_fader()
+
+    def destroy(self):
+        #self.colour = BLACK
+        self.timeToLive = 0
 
 
 class Gun:
@@ -95,20 +101,28 @@ class SprayGunBullet(Bullet):
         self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
         self.colour = WHITE
+		
+        self.damage = 1 # - weak bullets
 
         size = 1
+		
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([size*2, size*2])
         self.rect = self.image.get_rect()
         pygame.draw.circle(self.image, self.colour, (size, size), size, 0)
-        self.rect.x = self.x
-        self.rect.y = self.y
+        #self.rect.x = self.x
+        #self.rect.y = self.y
+		
+        self.rect = pygame.Rect(self.x, self.y, size, size) # - test
 
     def update(self):
         self.x += math.cos(self.angle) * self.speed
         self.y += math.sin(self.angle) * self.speed
 
-        self.rect = [self.x, self.y]
+        #self.rect = [self.x, self.y]
+		
+        self.rect = pygame.Rect(self.x, self.y, 1, 1) # - test
+		
         self.do_fader(self.image, (self.x, self.y))
 
 
