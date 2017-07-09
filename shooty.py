@@ -72,7 +72,6 @@ class Player(fadeStuff.drawObject):
     equippedGuns = []
 
     def __init__(self):
-        super(Player, self).__init__()
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
 
@@ -250,7 +249,7 @@ allSprites.add(player)
 
 enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
 enemyList.add(enemy)
-allSprites.add(enemy)
+
 # -------- Main Program Loop -----------
 while not done:
     # --- Input logic here
@@ -281,6 +280,9 @@ while not done:
         player.shoot(1)
 
     if keys[pygame.K_SPACE]:
+        enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
+        enemyList.add(enemy)
+        allSprites.add(enemy)
         pass
 
         # --- Game logic should go here
@@ -290,12 +292,13 @@ while not done:
 
     maxEnemies = 2  # maxEnemies on screen at once: increase this for crazy results
 
-    while len(enemyList) < maxEnemies:
-        # We'll need more sophisticated code for finding spawn positions just outside of the screen border
-        # Right now an enemy can spawn in the middle of the screen
-        enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
-        enemyList.add(enemy)
-        allSprites.add(enemy)
+    if 0:
+        while len(enemyList) < maxEnemies:
+            # We'll need more sophisticated code for finding spawn positions just outside of the screen border
+            # Right now an enemy can spawn in the middle of the screen
+            enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
+            enemyList.add(enemy)
+            allSprites.add(enemy)
 
     for enemy in enemyList:
         enemy.act([player.x, player.y])  # take action based on the player's position
@@ -306,8 +309,7 @@ while not done:
 
         # -------------------------------------- (It's a mess - sorry) -----------------
 
-    allSprites.update()
-    for gun in player.equippedGuns:
+    for gun in player.equippedGuns:  # FIXME should be a player function
         gun.recharge()
 
     # collision check
@@ -340,7 +342,7 @@ while not done:
     #                enemy.take_damage(health2)
     #                enemy2.take_damage(health1)
 
-    for thing in bulletList:
+    for thing in bulletList:  # FIXME add to player's new function to do gun stuff
         thing.timeToLive -= 10
         if thing.timeToLive <= 0:
             bulletList.remove(thing)
@@ -358,12 +360,16 @@ while not done:
     bulletList.update()
     bulletList.draw(screen)
 
+    enemyList.update()
+    enemyList.draw(screen)
+
+    fadeStuff.FM.do_fading()
+    fadeStuff.FM.drawList.draw(screen)
+
     # As the player moves so fast, there are gaps between where the player moved from.
     # Looks kinda naff
     # Draw line from where player was last to where is now?
     # Fade depending on distance to player/object who made trace?
-
-    # circList.append([player.x, player.y, player.radius, pygame.Color(player.r, player.g, player.b, 100)])
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

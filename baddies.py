@@ -1,4 +1,3 @@
-import random
 import time
 import math
 from definitions import *
@@ -20,14 +19,13 @@ class Enemy(fadeStuff.drawObject):
     elaTime = 0
 
     speed = 0
-    dead = None
+    dead = None  # TODO if an enemy is dead, it shouldn't know it's dead- it's dead
     colour = WHITE
 
     radius = 0 * resoChange
 
     # example position -> [0, 1]
     def __init__(self, position, radius):
-        super(Enemy, self).__init__()
         self.x = position[0]
         self.y = position[1]
         self.radius = radius * resoChange
@@ -36,9 +34,9 @@ class Enemy(fadeStuff.drawObject):
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
         self.rect = self.image.get_rect()
 
-    def move(self, position):
-        self.destX = position[0]
-        self.destY = position[1]
+    def move(self, dest):
+        self.destX = dest[0]
+        self.destY = dest[1]
 
         # move in straight line towards target
 
@@ -59,6 +57,9 @@ class Enemy(fadeStuff.drawObject):
         hyp = math.sqrt((xMove ** 2) + (yMove ** 2))
         self.x += xMove / (hyp) * self.speed
         self.y += yMove / (hyp) * self.speed
+
+        self.rect.x = self.x
+        self.rect.y = self.y
 
     def lifebar(self):
         # take_damage will reset lifebar elapse time
@@ -103,10 +104,19 @@ class Enemy(fadeStuff.drawObject):
 
 
 class Fodder(Enemy):
-    radius = 4  # increase size of enemy
-
     def __init__(self, position):
+        self.radius = 4  # increase size of enemy
         super(Fodder, self).__init__(position, self.radius)
+
+        x = self.x
+        y = self.y
+        h = self.radius
+        self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
+        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
+        # Draw triangle from three pointsS
+        pygame.draw.polygon(self.image, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
+        self.image.set_colorkey(BLACK)
+
         self.health = 10
         self.maxHealth = self.health
         self.speed = 1.5
@@ -116,15 +126,14 @@ class Fodder(Enemy):
         x = self.x
         y = self.y
         h = self.radius
-
-        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
-        self.image.fill(BLACK)
-        # next - draw triangle from three points
-        pygame.draw.polygon(screen, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
-        self.image.set_colorkey(BLACK)
         self.rect.center = (x, y)
-        # next - draw collision rectange from bottom left corner of triangle
-        self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
+        # next - draw collision rectangle from bottom left corner of triangle - #
+        if 1:   # fixme This code is bad unfortunately, the drawing should br done by the group.draw() function. But that doesn't work >:(
+            self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
+            self.image = pygame.Surface([self.radius * 2, self.radius * 2])
+            # Draw triangle from three pointsS
+            pygame.draw.polygon(screen, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
+            self.image.set_colorkey(BLACK)
         # next - draw lifebar
         self.lifebar()
 
@@ -132,7 +141,7 @@ class Fodder(Enemy):
         self.do_fader()
 
         # all enemies will have one - perform next actions
-        if self.dead == False:
+        if not self.dead:
             self.move(position)
             # Enemies that can fire guns would have a 'def shoot' method, called in 'def act'
 

@@ -18,7 +18,6 @@ class Bullet(fadeStuff.drawObject):
     damage = 0
 
     def __init__(self, position, direction, speed):
-        super(Bullet, self).__init__()
         self.x = position[0]
         self.y = position[1]
         self.angle = math.radians(90) * direction
@@ -104,20 +103,20 @@ class SprayGunBullet(Bullet):
                                                          1) / 10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
         self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
-        self.colour = WHITE
+        self.colour = BLUE
 
         self.damage = 1  # - weak bullets
 
-        size = 1
+        self.size = 1
 
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([size * 2, size * 2])
+        self.image = pygame.Surface([self.size * 2, self.size * 2])
         self.rect = self.image.get_rect()
-        pygame.draw.circle(self.image, self.colour, (size, size), size, 0)
+        pygame.draw.circle(self.image, self.colour, (self.size, self.size), self.size, 0)
         # self.rect.x = self.x
         # self.rect.y = self.y
 
-        self.rect = pygame.Rect(self.x, self.y, size, size)  # - test
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
 
     def update(self):
         self.x += math.cos(self.angle) * self.speed
@@ -125,7 +124,7 @@ class SprayGunBullet(Bullet):
 
         # self.rect = [self.x, self.y]
 
-        self.rect = pygame.Rect(self.x, self.y, 1, 1)  # - test
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
 
         self.do_fader()
 

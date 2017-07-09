@@ -2,6 +2,17 @@ from definitions import *
 fadeRate = 10
 
 
+class FaderManager:
+    def __init__(self):
+        self.drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
+
+    def do_fading(self):
+        for item in self.drawList:
+            kill = item.fade()
+            if kill:
+                self.drawList.remove(item)
+
+
 class fadeSprite(pygame.sprite.Sprite):
     def __init__(self, image, position):
         pygame.sprite.Sprite.__init__(self)
@@ -18,6 +29,8 @@ class fadeSprite(pygame.sprite.Sprite):
             kill = True
         return kill
 
+FM = FaderManager()
+
 
 class drawObject(pygame.sprite.Sprite):
     """
@@ -27,9 +40,6 @@ class drawObject(pygame.sprite.Sprite):
     """
     colour = WHITE
 
-    def __init__(self):
-        self.drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
-
     def do_fader(self):
         """
         This should be inherited by every child class. Each child needs to define its own actual drawing, though.
@@ -37,9 +47,5 @@ class drawObject(pygame.sprite.Sprite):
         """
         # TODO only 1 fadeSprite per position, otherwise that position will appear really bright.
         newFadeSprite = fadeSprite(self.image, (self.x, self.y))
-        self.drawList.add(newFadeSprite)
-        for item in self.drawList:
-            kill = item.fade()
-            if kill:
-                self.drawList.remove(item)
-        self.drawList.draw(screen)
+        FM.drawList.add(newFadeSprite)
+
