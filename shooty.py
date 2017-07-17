@@ -180,7 +180,7 @@ class Player(fadeStuff.drawObject):
         if bullet:
             bulletList.add(bullet)
 
-    def draw_ammo(self):  # TODO rename variables, tidy up a bit
+    def draw_ammo(self):  # TODO rename variables, tidy up a bit - no 'a' or 'b' stuff, give real names.
         ammoBarPositionModifier = 0
         for gun in self.equippedGuns:
             ammoBarPositionModifier += 20
@@ -292,20 +292,15 @@ while not done:
 
     maxEnemies = 2  # maxEnemies on screen at once: increase this for crazy results
 
-    if 0:
+    if 1:  # Set to 0 to turn off random enemy spawning
         while len(enemyList) < maxEnemies:
             # We'll need more sophisticated code for finding spawn positions just outside of the screen border
             # Right now an enemy can spawn in the middle of the screen
             enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
             enemyList.add(enemy)
-            allSprites.add(enemy)
-
-    for enemy in enemyList:
-        enemy.act([player.x, player.y])  # take action based on the player's position
 
         if enemy.dead:
             enemyList.remove(enemy)
-            allSprites.remove(enemy)
 
         # -------------------------------------- (It's a mess - sorry) -----------------
 
@@ -361,6 +356,8 @@ while not done:
     bulletList.draw(screen)
 
     enemyList.update()
+    for enemy in enemyList:
+        enemy.act([player.x, player.y])  # take action based on the player's position
     enemyList.draw(screen)
 
     fadeStuff.FM.do_fading()

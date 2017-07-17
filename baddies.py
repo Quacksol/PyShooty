@@ -58,8 +58,8 @@ class Enemy(fadeStuff.drawObject):
         self.x += xMove / (hyp) * self.speed
         self.y += yMove / (hyp) * self.speed
 
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = self.x - self.radius
+        self.rect.y = self.y - self.radius
 
     def lifebar(self):
         # take_damage will reset lifebar elapse time
@@ -111,7 +111,7 @@ class Fodder(Enemy):
         x = self.x
         y = self.y
         h = self.radius
-        self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
+        #self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
         # Draw triangle from three pointsS
         pygame.draw.polygon(self.image, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
@@ -126,18 +126,23 @@ class Fodder(Enemy):
         x = self.x
         y = self.y
         h = self.radius
-        self.rect.center = (x, y)
-        # next - draw collision rectangle from bottom left corner of triangle - #
-        if 1:   # fixme This code is bad unfortunately, the drawing should br done by the group.draw() function. But that doesn't work >:(
-            self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
-            self.image = pygame.Surface([self.radius * 2, self.radius * 2])
-            # Draw triangle from three pointsS
-            pygame.draw.polygon(screen, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
-            self.image.set_colorkey(BLACK)
+
+        # Draw updated sprite on object's image variable
+        self.rect = pygame.Rect(x - h / 2, y - h / 2, h*2, h*2)
+        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
+        self.image.fill(BLACK)
+        # Draw triangle from three points
+        #pygame.draw.polygon(self.image, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
+        pygame.draw.polygon(self.image, self.colour, [[h/2, h/2], [h+h/2, h/2], [h, h+h/2]], 1)
+
+        self.image.set_colorkey(BLACK)
+
+
         # next - draw lifebar
         self.lifebar()
 
     def act(self, position):
+        self.rect.center = (self.x+self.radius, self.y+self.radius)
         self.do_fader()
 
         # all enemies will have one - perform next actions
