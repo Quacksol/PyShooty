@@ -95,6 +95,11 @@ class Player(fadeStuff.drawObject):
             self.equippedGuns.append(guns.SprayGun(i))
 
     def move(self, dr):
+        """
+        Set the new position variables. The player is not moved here, but in update().
+        :param dr: The direction of travel.
+        :return: None
+        """
         if dr == 0:
             # Try to go up
             if self.node[1] - 1 > 0:
@@ -155,6 +160,8 @@ class Player(fadeStuff.drawObject):
         self.do_fader()
         self.draw_ammo()
 
+        self.do_guns()
+
         # Cool colour stuff, probably won't stay
         if self.r == 255:
             if not self.b == 0:
@@ -178,9 +185,13 @@ class Player(fadeStuff.drawObject):
     def shoot(self, dr):
         bullet = self.equippedGuns[dr].shoot([self.x, self.y], self.speed)
         if bullet:
-            bulletList.add(bullet)
+            bulletSprites.add(bullet)
 
     def draw_ammo(self):  # TODO rename variables, tidy up a bit - no 'a' or 'b' stuff, give real names.
+        """
+        Draw the ammo bars. TODO Should be called in the draw phase, not from update!
+        :return:
+        """
         ammoBarPositionModifier = 0
         for gun in self.equippedGuns:
             ammoBarPositionModifier += 20
@@ -227,6 +238,19 @@ class Player(fadeStuff.drawObject):
 
                 # If the ammo bars are going to have outlines, we could just blit the outline over the coloured bar.
 
+    def do_guns(self):
+        """
+        Function to do all passive gun related actions, like recharging and bullet life checking.
+        :return: None
+        """
+        for gun in self.equippedGuns:
+            gun.recharge()
+
+        for thing in bulletSprites:
+            thing.timeToLive -= 10
+            if thing.timeToLive <= 0:
+                bulletSprites.remove(thing)
+
 
 # Loop until the user clicks the close button.
 done = False
@@ -235,9 +259,9 @@ done = False
 clock = pygame.time.Clock()
 
 # -------- Game stuff -------
-allSprites = pygame.sprite.Group()
-bulletList = pygame.sprite.Group()
-enemyList = pygame.sprite.Group()
+playerSprites = pygame.sprite.Group()
+bulletSprites = pygame.sprite.Group()
+enemySprites = pygame.sprite.Group()
 
 # 15:9 is a good ratio
 xNodes = 15
@@ -245,10 +269,10 @@ yNodes = 9
 playerNodes = setup_nodes()
 
 player = Player()
-allSprites.add(player)
+playerSprites.add(player)
 
-enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
-enemyList.add(enemy)
+#enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
+#enemyList.add(enemy)
 
 # -------- Main Program Loop -----------
 while not done:
@@ -281,8 +305,8 @@ while not done:
 
     if keys[pygame.K_SPACE]:
         enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
-        enemyList.add(enemy)
-        allSprites.add(enemy)
+        enemySprites.add(enemy)
+        #allSprites.add(enemy)
         pass
 
         # --- Game logic should go here
@@ -293,38 +317,51 @@ while not done:
     maxEnemies = 2  # maxEnemies on screen at once: increase this for crazy results
 
     if 1:  # Set to 0 to turn off random enemy spawning
-        while len(enemyList) < maxEnemies:
+        while len(enemySprites) < maxEnemies:
             # We'll need more sophisticated code for finding spawn positions just outside of the screen border
             # Right now an enemy can spawn in the middle of the screen
-            enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
-            enemyList.add(enemy)
+            """
+            1. Choose whether left/right or top/bottom (1/4)
+            2. Depending on choice, set x or y randomly
+            """
+            i = random.randint(0, 3)
+            if i == 0:
+                # spawn at top
+                y = -30
+                x = random.randint(-30, WIDTH+30)
+            elif i == 1:
+                # spawn at bottom
+                y = HEIGHT + 30
+                x = random.randint(-30, WIDTH+30)
+            elif i == 2:
+                # spawn at right
+                x = WIDTH+30
+                y = random.randint(-30, HEIGHT+30)
+            elif i == 3:
+                # spawn at left
+                x = -30
+                y = random.randint(-30, HEIGHT+30)
 
-        if enemy.dead:
-            enemyList.remove(enemy)
+            enemy = baddies.Fodder([x, y])  # - for testing
+            enemySprites.add(enemy)
 
-        # -------------------------------------- (It's a mess - sorry) -----------------
+    # ----------------------------- Collision checks ---------------------------------
 
-    for gun in player.equippedGuns:  # FIXME should be a player function
-        gun.recharge()
+    # Enemies - check for player collisions, and with other enemies
+    for enemy in enemySprites:
+        col_list = pygame.sprite.spritecollide(enemy, playerSprites, False)
+        for thing in col_list:
+            playerSprites.remove(thing)  # TODO player take damage/death animation, respawning.
 
-    # collision check
-    for bullet in bulletList:  # TODO I think there's a much less intensive collision method, which asks if members of a group collided, then checks what the collider was. I did it before, I'll try and find it
-        for enemy in enemyList:
-            if bullet.rect.colliderect(enemy.rect):
-                enemy.take_damage(bullet.damage)
-                bullet.destroy()
-
-            # (Crude player death script - disappearing = death)
-    for enemy in enemyList:
-        if enemy.rect.colliderect(player.rect):
-            allSprites.remove(player)  # TODO player take damage/death animation, respawning.
-
-            # (Experiment code: you can get enemies to crash into each-other)
-        for enemy2 in enemyList:
-            if enemy != enemy2:
-                if enemy.rect.colliderect(enemy2.rect):
-                    enemy.death()
-                    enemy2.death()
+    # Bullets - check for collisions with enemies
+    for bullet in bulletSprites:
+        col_list = pygame.sprite.spritecollide(bullet, enemySprites, False)
+        for thing in col_list:
+            dead = thing.take_damage(bullet.damage)
+            if dead:  # I know I can minimise this, but it's better like this for readers innit
+                enemySprites.remove(thing)
+        if col_list:
+            bullet.destroy()
 
                 # 'BALANCED' ALTERNATIVE TO ABOVE 'CRASH' CODE - DOESN'T WORK - UNSURE WHY
                 #  IDEA: Take the health of the other ship in the collision, treat it as damage to this ship
@@ -337,11 +374,6 @@ while not done:
     #                enemy.take_damage(health2)
     #                enemy2.take_damage(health1)
 
-    for thing in bulletList:  # FIXME add to player's new function to do gun stuff
-        thing.timeToLive -= 10
-        if thing.timeToLive <= 0:
-            bulletList.remove(thing)
-
     # --- Drawing code should go here
     screen.fill(BLACK)
 
@@ -349,24 +381,21 @@ while not done:
         pygame.draw.line(screen, WHITE, pos, pos, 1)
 
     # allSprites.clear(screen, background) # Don't think this is required
-    allSprites.update()
-    allSprites.draw(screen)
+    playerSprites.update()
+    playerSprites.draw(screen)
 
-    bulletList.update()
-    bulletList.draw(screen)
+    bulletSprites.update()
+    bulletSprites.draw(screen)
 
-    enemyList.update()
-    for enemy in enemyList:
+    enemySprites.update()
+    for enemy in enemySprites:
         enemy.act([player.x, player.y])  # take action based on the player's position
-    enemyList.draw(screen)
+        if enemy.dead:
+            enemySprites.remove(enemy)
+    enemySprites.draw(screen)
 
     fadeStuff.FM.do_fading()
     fadeStuff.FM.drawList.draw(screen)
-
-    # As the player moves so fast, there are gaps between where the player moved from.
-    # Looks kinda naff
-    # Draw line from where player was last to where is now?
-    # Fade depending on distance to player/object who made trace?
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

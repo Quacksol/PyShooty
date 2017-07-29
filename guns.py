@@ -37,7 +37,7 @@ class Bullet(fadeStuff.drawObject):
 
     def destroy(self):
         # self.colour = BLACK
-        self.timeToLive = 0
+        self.timeToLive = 0  # TODO would this not mean it can operate until the end of the frame? Should be destroyed stright away.
 
 
 class Gun:

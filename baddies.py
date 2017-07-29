@@ -19,7 +19,6 @@ class Enemy(fadeStuff.drawObject):
     elaTime = 0
 
     speed = 0
-    dead = None  # TODO if an enemy is dead, it shouldn't know it's dead- it's dead
     colour = WHITE
 
     radius = 0 * resoChange
@@ -83,22 +82,26 @@ class Enemy(fadeStuff.drawObject):
                              [(self.x + self.radius) - (self.radius * 2 * (1 - healthLeft)), self.y - self.radius], 2)
 
     def take_damage(self, damage):
+        dead = False
         self.health -= damage
 
         # for lifebar - reset elapse time
         curTime = int(round(time.time() * 1000))
         self.elaTime = curTime + 2000  # elapse time is set for 2 seconds (2000 milliseconds) from now
 
-        self.check_death()
-
-    def check_death(self):
         if self.health <= 0:
+            dead = True
             self.death()
+        return dead
 
     def death(self):
+        """
+        Placeholder atm, make a cool explosion or something
+        :return:
+        """
         # explosion effect
-        self.colour = RED  # - temp for explosion
-        self.dead = True
+        #self.colour = RED  # - temp for explosion
+        pass
 
     # delete instance
 
