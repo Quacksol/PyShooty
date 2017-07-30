@@ -99,15 +99,16 @@ class SprayGunBullet(Bullet):
         super(SprayGunBullet, self).__init__(position, direction, speed)
 
         self.timeToLive = 300
-        self.speed = math.fabs(speed) + random.randrange(0, 20,
-                                                         1) / 10 + 1  # todo if shooting the opposite direction of movement, it still goes faster
+        self.speed = math.fabs(speed)/10 + random.randrange(0, 20,
+                                                         1) / 20  # todo if shooting the opposite direction of movement, it still goes faster
+        self.speed *= resoChange
         self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
         self.colour = BLUE
 
         self.damage = 1  # - weak bullets
 
-        self.size = 1
+        self.size = int(0.25 * resoChange)
 
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.size * 2, self.size * 2])

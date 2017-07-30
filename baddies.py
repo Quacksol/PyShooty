@@ -108,7 +108,7 @@ class Enemy(fadeStuff.drawObject):
 
 class Fodder(Enemy):
     def __init__(self, position):
-        self.radius = 4  # increase size of enemy
+        self.radius = 0.5 * resoChange  # increase size of enemy
         super(Fodder, self).__init__(position, self.radius)
 
         x = self.x
@@ -122,7 +122,7 @@ class Fodder(Enemy):
 
         self.health = 10
         self.maxHealth = self.health
-        self.speed = 1.5
+        self.speed = 0.25 * resoChange
         self.dead = False
 
     def update(self):
@@ -131,11 +131,10 @@ class Fodder(Enemy):
         h = self.radius
 
         # Draw updated sprite on object's image variable
-        self.rect = pygame.Rect(x - h / 2, y - h / 2, h*2, h*2)
+        self.rect = pygame.Rect(x - h / 2, y - h / 2, h*2, h*2)  # TODO Figure out how to make not square collision box
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
         self.image.fill(BLACK)
         # Draw triangle from three points
-        #pygame.draw.polygon(self.image, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
         pygame.draw.polygon(self.image, self.colour, [[h/2, h/2], [h+h/2, h/2], [h, h+h/2]], 1)
 
         self.image.set_colorkey(BLACK)

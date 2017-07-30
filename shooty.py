@@ -19,11 +19,6 @@ import baddies
 from definitions import *
 
 pygame.init()
-
-GUI = pygame.Surface(size)
-GUI.set_colorkey(BLACK)
-screen.fill(BLACK)  # Make screen black to start off
-
 pygame.display.set_caption("Real Life Video Game")
 
 
@@ -65,9 +60,9 @@ class Player(fadeStuff.drawObject):
     g = 255
     b = 255
     colourChangeRate = 3
-    radius = 3 * resoChange
+    radius = 2 * resoChange
     # Other attributes
-    moveSpeed = 0.075
+    moveSpeed = 0.1 #* resoChange
 
     equippedGuns = []
 
@@ -187,50 +182,42 @@ class Player(fadeStuff.drawObject):
         if bullet:
             bulletSprites.add(bullet)
 
-    def draw_ammo(self):  # TODO rename variables, tidy up a bit - no 'a' or 'b' stuff, give real names.
+    def draw_ammo(self):
         """
-        Draw the ammo bars. TODO Should be called in the draw phase, not from update!
+        Draw the ammo bars. #TODO Should be called in the draw phase, not from update!
         :return:
         """
         ammoBarPositionModifier = 0
+        ammoBarStart = WIDTH - 30 * resoChange
         for gun in self.equippedGuns:
-            ammoBarPositionModifier += 20
-            b = (gun.ammo / gun.maxAmmo)
-            a = (WIDTH - 100) + b * 90
-
-            barWidth = (WIDTH - 100) + 90  # For getting a constant bar width ~ Dylan
-
-            w = 4  # So I don't have to keep typing 4 ~ Dylan
+            ammoBarPositionModifier += 4 * resoChange  # For getting next y positions
+            ammo = (gun.ammo / gun.maxAmmo)  # Get ammo as a fraction
+            maxBarSize = ammoBarStart + resoChange * 25   # TODO should be constant, don't set every frame pls
+            ammoBarEnd = ammoBarStart + ammo * resoChange * 25  # For getting a constant bar width ~ Dylan
+            thickness = resoChange  # So I don't have to keep typing 4 ~ Dylan
 
             # ADDITION #1 - 'Running out of ammo' change
 
-            c = WHITE
+            colour = WHITE
+            if ammo < 0.2:
+                colour = RED  # If low % of ammo remaining, change bar to red ~ Dylan
 
-            if b < 0.2:
-                c = RED  # If low % of ammo remaining, change bar to red ~ Dylan
-
-            # ////////////////////////////////////////////
-
-            # (location, colour, pointA, pointB, line thickness) - points as X, Y
-            # point defined as (X, Y)
-
-            pygame.draw.line(screen, c, [WIDTH - 100, HEIGHT - 20 - ammoBarPositionModifier],
-                             [a, HEIGHT - 20 - ammoBarPositionModifier], w)  # TODO The ammo bars are backwards
+            barY = HEIGHT - 20 * resoChange + ammoBarPositionModifier
+            pygame.draw.line(screen, colour, [ammoBarStart, barY], [ammoBarEnd, barY], thickness)
 
             # ADDITION #2  - Simple ammo counter
 
-            lineWidth = barWidth - (WIDTH - 100)  # how long is the ammo bar? ~ Dylan
+            #lineWidth = barWidth - (WIDTH - 100)  # how long is the ammo bar? ~ Dylan
 
-            ammoCount = 3  # would get from gun.maxAmmo if ammunition differed between weapons.
+            ammoCount = 5  # how many pieces to split the bar into. TODO depend on gun type
             # ammoCounts of 1 to ~50 show well, beyond that it becomes hard to read ~ Dylan
 
-            increment = lineWidth / ammoCount  # how many pieces to split the ammo bar into ~ Dylan
+            increment = (maxBarSize - ammoBarStart) / ammoCount  # positions to split the bar
 
-            j = 0
+            j = 1
             while j < ammoCount:
                 offset = j * increment
-                pygame.draw.line(screen, BLACK, [WIDTH - 100 + offset, HEIGHT - 20 - ammoBarPositionModifier - 3],
-                                 [WIDTH - 100 + offset, HEIGHT - 20 - ammoBarPositionModifier + 3], 1)
+                pygame.draw.line(screen, BLACK, [ammoBarStart + offset, barY - thickness/2], [ammoBarStart + offset, barY + thickness/2], 1)
                 j += 1
 
                 # Take max ammo, divide length of bar by amount of bullets
@@ -271,9 +258,6 @@ playerNodes = setup_nodes()
 player = Player()
 playerSprites.add(player)
 
-#enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
-#enemyList.add(enemy)
-
 # -------- Main Program Loop -----------
 while not done:
     # --- Input logic here
@@ -309,17 +293,23 @@ while not done:
         #allSprites.add(enemy)
         pass
 
+    if keys[pygame.K_ESCAPE]:
+        done = True
+
+    if keys[pygame.K_o]:
+        change_resolution(0)
+    if keys[pygame.K_p]:
+        change_resolution(1)
+
         # --- Game logic should go here
 
     # enemy behaviour
     # (apologies - this is a mess. We'll have to consider if another class is required for this)
 
-    maxEnemies = 2  # maxEnemies on screen at once: increase this for crazy results
+    maxEnemies = 5  # maxEnemies on screen at once: increase this for crazy results
 
     if 1:  # Set to 0 to turn off random enemy spawning
         while len(enemySprites) < maxEnemies:
-            # We'll need more sophisticated code for finding spawn positions just outside of the screen border
-            # Right now an enemy can spawn in the middle of the screen
             """
             1. Choose whether left/right or top/bottom (1/4)
             2. Depending on choice, set x or y randomly
@@ -341,6 +331,8 @@ while not done:
                 # spawn at left
                 x = -30
                 y = random.randint(-30, HEIGHT+30)
+            else:
+                print("ERROR")
 
             enemy = baddies.Fodder([x, y])  # - for testing
             enemySprites.add(enemy)
@@ -352,6 +344,7 @@ while not done:
         col_list = pygame.sprite.spritecollide(enemy, playerSprites, False)
         for thing in col_list:
             playerSprites.remove(thing)  # TODO player take damage/death animation, respawning.
+            #done = True
 
     # Bullets - check for collisions with enemies
     for bullet in bulletSprites:
