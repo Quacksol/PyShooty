@@ -1,5 +1,8 @@
 import pygame
 
+fs = True
+#fs = False
+
 # Define some colors
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
@@ -8,11 +11,16 @@ RED = pygame.Color(255, 0, 0)
 BLUE = pygame.Color(0, 0, 255)
 
 # Set the width and height of the screen [width, height]
-resoChange = 8  # Change this to change the resolution of the game screen.
+if fs:
+    resoChange = 10  # Change this to change the resolution of the game screen.
+else:
+    resoChange = 4
 WIDTH = 192 * resoChange
 HEIGHT = 108 * resoChange
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))#, pygame.FULLSCREEN)
+if fs:
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+else:
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 fps = 60  # Tasty
 dt = 0  # Used to count a second, leave it

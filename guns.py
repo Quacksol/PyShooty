@@ -37,7 +37,7 @@ class Bullet(fadeStuff.drawObject):
 
     def destroy(self):
         # self.colour = BLACK
-        self.timeToLive = 0  # TODO would this not mean it can operate until the end of the frame? Should be destroyed stright away.
+        self.timeToLive = 0  # Keep this, bullet could collide with multiple objects.
 
 
 class Gun:
@@ -59,6 +59,7 @@ class Gun:
     def __init__(self, direction):
         self.direction = direction - 1
         self.ammo = self.maxAmmo
+        self.barSplits = 5  # Default number of 'segments' in the ammo bar
 
     def shoot(self, position, speed):
         """
@@ -114,10 +115,7 @@ class SprayGunBullet(Bullet):
         self.image = pygame.Surface([self.size * 2, self.size * 2])
         self.rect = self.image.get_rect()
         pygame.draw.circle(self.image, self.colour, (self.size, self.size), self.size, 0)
-        # self.rect.x = self.x
-        # self.rect.y = self.y
-
-        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
+        self.rect = self.image.get_rect()
 
     def update(self):
         self.x += math.cos(self.angle) * self.speed
@@ -125,7 +123,15 @@ class SprayGunBullet(Bullet):
 
         # self.rect = [self.x, self.y]
 
-        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
+        # THESE NEXT FEW LINES MAKE THE FADER WORK !!!!!
+        self.image = pygame.Surface([self.size * 2, self.size * 2])
+        self.rect = self.image.get_rect()
+        pygame.draw.circle(self.image, self.colour, (self.size, self.size), self.size, 0)
+        self.rect = self.image.get_rect()
+        # OK done
+
+        #self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
+        self.rect.center = (self.x, self.y)
 
         self.do_fader()
 

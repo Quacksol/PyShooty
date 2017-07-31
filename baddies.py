@@ -136,12 +136,7 @@ class Fodder(Enemy):
         self.image.fill(BLACK)
         # Draw triangle from three points
         pygame.draw.polygon(self.image, self.colour, [[h/2, h/2], [h+h/2, h/2], [h, h+h/2]], 1)
-
         self.image.set_colorkey(BLACK)
-
-
-        # next - draw lifebar
-        self.lifebar()
 
     def act(self, position):
         self.rect.center = (self.x+self.radius, self.y+self.radius)

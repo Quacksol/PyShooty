@@ -153,8 +153,6 @@ class Player(fadeStuff.drawObject):
         self.speed = speed
 
         self.do_fader()
-        self.draw_ammo()
-
         self.do_guns()
 
         # Cool colour stuff, probably won't stay
@@ -184,7 +182,7 @@ class Player(fadeStuff.drawObject):
 
     def draw_ammo(self):
         """
-        Draw the ammo bars. #TODO Should be called in the draw phase, not from update!
+        Draw the ammo bars.
         :return:
         """
         ammoBarPositionModifier = 0
@@ -209,7 +207,7 @@ class Player(fadeStuff.drawObject):
 
             #lineWidth = barWidth - (WIDTH - 100)  # how long is the ammo bar? ~ Dylan
 
-            ammoCount = 5  # how many pieces to split the bar into. TODO depend on gun type
+            ammoCount = gun.barSplits  # how many pieces to split the bar into.
             # ammoCounts of 1 to ~50 show well, beyond that it becomes hard to read ~ Dylan
 
             increment = (maxBarSize - ammoBarStart) / ammoCount  # positions to split the bar
@@ -337,6 +335,15 @@ while not done:
             enemy = baddies.Fodder([x, y])  # - for testing
             enemySprites.add(enemy)
 
+    # ----------------------------- Group Updates ------------------------------------
+    playerSprites.update()
+    bulletSprites.update()
+    enemySprites.update()
+    for enemy in enemySprites:
+        enemy.act([player.x, player.y])  # take action based on the player's position
+        if enemy.dead:
+            enemySprites.remove(enemy)
+
     # ----------------------------- Collision checks ---------------------------------
 
     # Enemies - check for player collisions, and with other enemies
@@ -374,18 +381,13 @@ while not done:
         pygame.draw.line(screen, WHITE, pos, pos, 1)
 
     # allSprites.clear(screen, background) # Don't think this is required
-    playerSprites.update()
     playerSprites.draw(screen)
+    player.draw_ammo()
 
-    bulletSprites.update()
     bulletSprites.draw(screen)
-
-    enemySprites.update()
-    for enemy in enemySprites:
-        enemy.act([player.x, player.y])  # take action based on the player's position
-        if enemy.dead:
-            enemySprites.remove(enemy)
     enemySprites.draw(screen)
+    for enemy in enemySprites:
+        enemy.lifebar()
 
     fadeStuff.FM.do_fading()
     fadeStuff.FM.drawList.draw(screen)
@@ -398,6 +400,7 @@ while not done:
     dt += 1
     if dt == fps:
         dt = 0
+
     # print(clock.get_fps())
 
 # Close the window and quit.

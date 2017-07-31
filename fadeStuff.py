@@ -1,5 +1,5 @@
 from definitions import *
-fadeRate = 10
+fadeRate = 5
 
 
 class FaderManager:
@@ -16,17 +16,19 @@ class FaderManager:
 class fadeSprite(pygame.sprite.Sprite):
     def __init__(self, image, position):
         pygame.sprite.Sprite.__init__(self)
-        self.alpha = 255
         self.image = image
+        self.image.set_alpha(255)
         self.rect = self.image.get_rect()
         self.rect.center = position
 
     def fade(self):
         kill = False
-        self.image.set_alpha(self.alpha)
-        self.alpha -= fadeRate
-        if self.alpha <= 0:
+        a = self.image.get_alpha()
+        a -= fadeRate
+        if a <= 0:
             kill = True
+        else:
+            self.image.set_alpha(a)
         return kill
 
 FM = FaderManager()

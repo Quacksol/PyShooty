@@ -5,7 +5,7 @@ from cx_Freeze import setup, Executable
 import sys
 
 name = "VIDEO GAME"
-file = r"C:\Users\Bane\PycharmProjects\fadeTest\shooty.py" # folder will be found in Bane
+file = r"C:\Users\Bane\PycharmProjects\PyShooty\shooty.py" # folder will be found in Bane
 
 base = None
 if sys.platform == "win32":
