@@ -1,7 +1,7 @@
 import pygame
 
 fs = True
-#fs = False
+fs = False
 
 # Define some colors
 BLACK = pygame.Color(0, 0, 0)
@@ -23,6 +23,7 @@ else:
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 fps = 60  # Tasty
+clock = pygame.time.Clock()
 dt = 0  # Used to count a second, leave it
 
 
