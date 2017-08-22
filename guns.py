@@ -123,13 +123,6 @@ class SprayGunBullet(Bullet):
 
         # self.rect = [self.x, self.y]
 
-        # THESE NEXT FEW LINES MAKE THE FADER WORK !!!!!
-        self.image = pygame.Surface([self.size * 2, self.size * 2])
-        self.rect = self.image.get_rect()
-        pygame.draw.circle(self.image, self.colour, (self.size, self.size), self.size, 0)
-        self.rect = self.image.get_rect()
-        # OK done
-
         #self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
         self.rect.center = (self.x, self.y)
 

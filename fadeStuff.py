@@ -1,5 +1,5 @@
 from definitions import *
-fadeRate = 5
+fadeRate = 10
 
 
 class FaderManager:
@@ -48,6 +48,6 @@ class drawObject(pygame.sprite.Sprite):
         :return:
         """
         # TODO only 1 fadeSprite per position, otherwise that position will appear really bright.
-        newFadeSprite = fadeSprite(self.image, (self.x, self.y))
+        newFadeSprite = fadeSprite(self.image.copy(), (self.x, self.y))
         FM.drawList.add(newFadeSprite)
 

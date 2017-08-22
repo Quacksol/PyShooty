@@ -1,7 +1,7 @@
 import pygame
 
 fs = True
-fs = False
+#fs = False
 
 # Define some colors
 BLACK = pygame.Color(0, 0, 0)

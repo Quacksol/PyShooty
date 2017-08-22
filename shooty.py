@@ -233,13 +233,10 @@ def do_main():
                 if thing.timeToLive <= 0:
                     bulletSprites.remove(thing)
 
-
-    # Loop until the user clicks the close button.
+    # Start actually initialising stuff
     done = False
+    fadeStuff.FM.__init__()
 
-    # Used to manage how fast the screen updates
-
-    # -------- Game stuff -------
     playerSprites = pygame.sprite.Group()
     bulletSprites = pygame.sprite.Group()
     enemySprites = pygame.sprite.Group()
@@ -284,6 +281,7 @@ def do_main():
         if keys[pygame.K_SPACE]:
             enemy = baddies.Fodder([random.randint(40, 700), random.randint(40, 700)])  # - for testing
             enemySprites.add(enemy)
+            print(len(enemySprites.sprites()))
             #allSprites.add(enemy)
             pass
 

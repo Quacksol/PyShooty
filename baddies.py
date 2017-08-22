@@ -111,13 +111,12 @@ class Fodder(Enemy):
         self.radius = 0.5 * resoChange  # increase size of enemy
         super(Fodder, self).__init__(position, self.radius)
 
-        x = self.x
-        y = self.y
         h = self.radius
-        #self.rect = pygame.Rect(x - h / 2, y - h / 2, h, h)
+
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
-        # Draw triangle from three pointsS
-        pygame.draw.polygon(self.image, self.colour, [[x, y + h / 2], [x - h / 2, y - h / 2], [x + h / 2, y - h / 2]], 1)
+        self.image.fill(BLACK)
+        # Draw triangle from three points
+        pygame.draw.polygon(self.image, self.colour, [[h / 2, h / 2], [h + h / 2, h / 2], [h, h + h / 2]], 1)
         self.image.set_colorkey(BLACK)
 
         self.health = 10
@@ -132,11 +131,12 @@ class Fodder(Enemy):
 
         # Draw updated sprite on object's image variable
         self.rect = pygame.Rect(x - h / 2, y - h / 2, h*2, h*2)  # TODO Figure out how to make not square collision box
-        self.image = pygame.Surface([self.radius * 2, self.radius * 2])
-        self.image.fill(BLACK)
-        # Draw triangle from three points
-        pygame.draw.polygon(self.image, self.colour, [[h/2, h/2], [h+h/2, h/2], [h, h+h/2]], 1)
-        self.image.set_colorkey(BLACK)
+        if 0:
+            self.image = pygame.Surface([self.radius * 2, self.radius * 2])
+            self.image.fill(BLACK)
+            # Draw triangle from three points
+            pygame.draw.polygon(self.image, self.colour, [[h/2, h/2], [h+h/2, h/2], [h, h+h/2]], 1)
+            self.image.set_colorkey(BLACK)
 
     def act(self, position):
         self.rect.center = (self.x+self.radius, self.y+self.radius)
