@@ -1,5 +1,5 @@
 from definitions import *
-fadeRate = 10
+fadeRate = 30
 
 
 class FaderManager:
@@ -7,6 +7,7 @@ class FaderManager:
         self.drawList = pygame.sprite.Group()  # Contains positions for fadey items. For each position, draw fadey item.
 
     def do_fading(self):
+        print("EHREH")
         for item in self.drawList:
             kill = item.fade()
             if kill:

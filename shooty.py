@@ -9,8 +9,10 @@
  Explanation video: http://youtu.be/vRB_983kUMc
 """
 
+import string
 import math
 import random
+import multiprocessing
 
 import fadeStuff
 import guns
@@ -249,6 +251,13 @@ def do_main():
     player = Player()
     playerSprites.add(player)
 
+    do_fading = None  # Make the function now so that the main loop knows of it
+    if 0:
+        multiprocessing.freeze_support()
+        do_fading = multiprocessing.Process(target=fadeStuff.FM.do_fading())
+        do_fading.start()
+        do_fading.join()
+
     # -------- Main Program Loop -----------
     while not done:
         # --- Input logic here
@@ -385,6 +394,9 @@ def do_main():
 
         fadeStuff.FM.do_fading()
         fadeStuff.FM.drawList.draw(screen)
+
+        fps_font = pygame.font.SysFont("calibri", 5 * resoChange)
+        screen.blit(fps_font.render(str(clock.get_fps()), False, WHITE), [0, 0])
 
         # --- Go ahead and update the screen with what we've drawn.
         pygame.display.flip()

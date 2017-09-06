@@ -118,7 +118,7 @@ while not quitGame:
             global displaySurface, drawList
             displaySurface = levelSelectSurface
             drawList = []
-            level1 = MenuOption('eh reh', [2*(WIDTH/10), 100])
+            level1 = MenuOption('stinky level select', [2*(WIDTH/10), 3 * (HEIGHT / 10)])
             drawList.append(level1)
 
             exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
@@ -249,10 +249,11 @@ while not quitGame:
             if not inMenu:
                 break
 
-    if gameStart:
-        shooty.do_main()
-        gameStart = False
-        inMenu = True
+    if __name__ == '__main__':
+        if gameStart:
+            shooty.do_main()
+            gameStart = False
+            inMenu = True
 
 # Close the window and quit.
 pygame.quit()
