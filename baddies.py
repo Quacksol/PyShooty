@@ -1,10 +1,9 @@
 import time
 import math
 from definitions import *
-import fadeStuff
 
 
-class Enemy(fadeStuff.drawObject):
+class Enemy(pygame.sprite.Sprite):
     """
     Abstract class for enemies. Each enemy has a position and health.
     """
@@ -140,7 +139,6 @@ class Fodder(Enemy):
 
     def act(self, position):
         self.rect.center = (self.x+self.radius, self.y+self.radius)
-        self.do_fader()
 
         # all enemies will have one - perform next actions
         if not self.dead:

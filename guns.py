@@ -1,10 +1,9 @@
 import random
 import math
 from definitions import *
-import fadeStuff
 
 
-class Bullet(fadeStuff.drawObject):
+class Bullet(pygame.sprite.Sprite):
     """
     Abstract class for bullets. Each one disappears at a different rate, has different shape, colour, etc
     Each bullet decides itself where it moves, depeding on its starting conditions
@@ -125,8 +124,6 @@ class SprayGunBullet(Bullet):
 
         #self.rect = pygame.Rect(self.x, self.y, self.size, self.size)  # - test
         self.rect.center = (self.x, self.y)
-
-        self.do_fader()
 
 
 class SprayGun(Gun):
