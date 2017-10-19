@@ -4,17 +4,35 @@ It basically is the menu. This while loop does the menu stuff,
 and when the game starts exits that loops and goes into the game loop enters another loop.
 """
 # imports
+
+
 if __name__ == '__main__':
     from definitions import *
+
     # setup stuff
     pygame.display.set_caption("Real Life Video Game")
     pygame.init()
 
     pygame.font.init()
-    titleFont = pygame.font.SysFont("calibri", 10 * resoChange)
-    submenuFont = pygame.font.SysFont("calibri", 5 * resoChange)
+    titleFont = pygame.font.SysFont("calibri", int(8*2*resoScale))
+    submenuFont = pygame.font.SysFont("calibri", int(5*2*resoScale))
 
     quitGame = False
+
+    # Define stuff that is for both menu and in-game
+    def change_resolution(width, height):
+        global screen, HEIGHT, WIDTH
+
+        """
+        Change the resolution. Only do this in the menu, too much effort to change the sizes of everything in-game.
+        :param height: New screen height
+        :param width: New screen width
+        :return: None
+        """
+        WIDTH = width
+        HEIGHT = height
+        screen = pygame.Surface([WIDTH, WIDTH])
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 
     while not quitGame:
         inMenu = True
@@ -63,16 +81,14 @@ if __name__ == '__main__':
                 cursorState = cursorTable[menuState][cursorState][direction]
 
 
-            def move_menu(direction):
+            def draw_menu():
                 """
-                Changes the menu state, depending on current menu state and cursor selection.
+                'Move' to the menu, depending on the global menuState.
                 Also do any computing for any state change.
-                :return: state = The new state for the state machine to move to.
+
+                :return: None
                 """
-                # TODO Screen transitions won't be immediate as they are now.
-                global menuState, cursorState, displaySurface
-                menuState = menuTable[menuState][cursorState][direction]
-                cursorState = 0
+                global menuState
                 if menuState == 0:
                     make_main_menu()
                 elif menuState == 1:
@@ -88,8 +104,24 @@ if __name__ == '__main__':
                 elif menuState == 6:
                     make_exit_screen()
 
+            def move_menu(direction):
+                """
+                Changes the menu state, depending on current menu state and cursor selection.
+                Calls move_menu with no parameters, after changing the menuState.
+                :return: None
+                """
+                # TODO Screen transitions won't be immediate as they are now.
+                global menuState, cursorState, displaySurface
+                menuState = menuTable[menuState][cursorState][direction]
+                cursorState = 0
+                draw_menu()
+
 
             class MenuOption:
+                """
+                Class for the options that appear in each menu.
+                Comes with the text it is to display as str and image, and its position to appear on the screen.
+                """
                 def __init__(self, text, position):
                     self.text = text  # TODO You might not need this
                     self.image = submenuFont.render(text, False, WHITE)
@@ -100,18 +132,18 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = titleSurface
                 drawList = []
-                mainMode = MenuOption('Main mode', [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                mainMode = MenuOption('Main mode', [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(mainMode)
-                endlessMode = MenuOption('Endless mode', [2*(WIDTH/10), 4 * (HEIGHT / 10)])
+                endlessMode = MenuOption('Endless mode', [2*(BASEWIDTH/10), 4 * (BASEHEIGHT / 10)])
                 drawList.append(endlessMode)
-                optionsScreen = MenuOption('Options', [2*(WIDTH/10), 5 * (HEIGHT / 10)])
+                optionsScreen = MenuOption('Options', [2*(BASEWIDTH/10), 5 * (BASEHEIGHT / 10)])
                 drawList.append(optionsScreen)
-                progressScreen = MenuOption('Unlockables', [2*(WIDTH/10), 6 * (HEIGHT / 10)])
+                progressScreen = MenuOption('Unlockables', [2*(BASEWIDTH/10), 6 * (BASEHEIGHT / 10)])
                 drawList.append(progressScreen)
-                creditsScreen = MenuOption('Credits', [2*(WIDTH/10), 7 * (HEIGHT / 10)])
+                creditsScreen = MenuOption('Credits', [2*(BASEWIDTH/10), 7 * (BASEHEIGHT / 10)])
                 drawList.append(creditsScreen)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -119,10 +151,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = levelSelectSurface
                 drawList = []
-                level1 = MenuOption('stinky level select', [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                level1 = MenuOption('stinky level select', [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(level1)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -130,10 +162,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = endlessSurface
                 drawList = []
-                endlessOption1 = MenuOption("Feature coming soon!", [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                endlessOption1 = MenuOption("Feature coming soon!", [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(endlessOption1)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -141,10 +173,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = optionsSurface
                 drawList = []
-                option1 = MenuOption('This is an option', [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                option1 = MenuOption('This is an option', [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option1)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -152,10 +184,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = progressSurface
                 drawList = []
-                option1 = MenuOption("Wow! You're making great progress.", [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                option1 = MenuOption("Wow! You're making great progress.", [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option1)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -163,10 +195,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = creditsSurface
                 drawList = []
-                option1 = MenuOption("Made by Dom, well done him.", [2*(WIDTH/10), 3 * (HEIGHT / 10)])
+                option1 = MenuOption("Made by Dom, well done him.", [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option1)
 
-                exitScreen = MenuOption('Exit (Esc)', [2*(WIDTH/10), 8 * (HEIGHT / 10)])
+                exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
 
 
@@ -174,9 +206,9 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = exitSurface
                 drawList = []
-                option1 = MenuOption("110% sure.", [3*(WIDTH/10), 3 * (HEIGHT / 10)])
+                option1 = MenuOption("110% sure.", [3*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option1)
-                option2 = MenuOption("Only 90%, go back!", [5*(WIDTH/10), 3 * (HEIGHT / 10)])
+                option2 = MenuOption("Only 90%, go back!", [5*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option2)
 
             make_main_menu()
@@ -184,7 +216,7 @@ if __name__ == '__main__':
 
             class Cursor:
                 def __init__(self):
-                    size = 8 * resoChange
+                    size = 8 * resoScale
                     self.image = pygame.Surface([size, size])
                     self.image.fill(BLACK)
                     # Draw triangle from three points
@@ -204,6 +236,9 @@ if __name__ == '__main__':
                     if event.type == pygame.QUIT:
                         quitGame = True
                         inMenu = False  # TODO look up signals and slots for quitting the game
+                    if event.type == pygame.VIDEORESIZE:
+                        change_resolution(event.w, event.h)
+                        draw_menu()
                     if event.type == pygame.KEYDOWN:
                         # Cursor movement
                         if event.key == pygame.K_w or event.key == pygame.K_UP:
@@ -236,15 +271,18 @@ if __name__ == '__main__':
                     quitGame = True
                     inMenu = False
 
-                cursor.position[0] = drawList[cursorState].position[0] - 5*resoChange
-                cursor.position[1] = drawList[cursorState].position[1] + 0.25*resoChange
+                cursor.position[0] = drawList[cursorState].position[0] - 5 * resoScale
+                cursor.position[1] = drawList[cursorState].position[1] + 3 * resoScale
 
                 # Draw everything
-                screen.fill(BLACK)
-                screen.blit(displaySurface, ((WIDTH - displaySurface.get_width()) / 2, HEIGHT / 10))
+                main_surf.fill(BLACK)
+
+                main_surf.blit(displaySurface, ((BASEWIDTH - displaySurface.get_width()) / 2, BASEHEIGHT / 10))
                 for thing in drawList:
-                    screen.blit(thing.image, thing.position)
-                screen.blit(cursor.image, cursor.position)
+                    main_surf.blit(thing.image, thing.position)
+                main_surf.blit(cursor.image, cursor.position)
+                pygame.transform.scale(main_surf, (WIDTH, HEIGHT), screen)
+
                 pygame.display.flip()
 
                 if not inMenu:
@@ -254,23 +292,20 @@ if __name__ == '__main__':
 
             import math
             import random
-            import multiprocessing
 
             import guns
             import baddies
-            from definitions import *
-
 
             def setup_nodes():
                 """
-                Returns the positions of the nodes the player moves between
+                Returns the positions of the nodes the player will move between
                 :return: nodes
                 """
                 nodes = []
                 for j in range(yNodes):
                     for i in range(xNodes):
-                        nodes.append([i * (WIDTH / xNodes) + (WIDTH / xNodes) / 2,
-                                      j * (HEIGHT / yNodes) + (HEIGHT / yNodes) / 2])
+                        nodes.append([i * (BASEWIDTH / xNodes) + (BASEWIDTH / xNodes) / 2,
+                                      j * (BASEHEIGHT / yNodes) + (BASEHEIGHT / yNodes) / 2])
                 return nodes
 
 
@@ -300,9 +335,9 @@ if __name__ == '__main__':
                 g = 255
                 b = 255
                 colourChangeRate = 3
-                radius = 2 * resoChange
+                radius = int(2 * objectSize * resoScale)
                 # Other attributes
-                moveSpeed = 0.1  # * resoChange
+                moveSpeed = 0.03 * objectSize
 
                 equippedGuns = []
 
@@ -427,13 +462,13 @@ if __name__ == '__main__':
                     :return:
                     """
                     ammoBarPositionModifier = 0
-                    ammoBarStart = WIDTH - 30 * resoChange
+                    ammoBarStart = WIDTH - 30 * 1
                     for gun in self.equippedGuns:
-                        ammoBarPositionModifier += 4 * resoChange  # For getting next y positions
+                        ammoBarPositionModifier += 4 * 1  # For getting next y positions
                         ammo = (gun.ammo / gun.maxAmmo)  # Get ammo as a fraction
-                        maxBarSize = ammoBarStart + resoChange * 25  # TODO should be constant, don't set every frame pls
-                        ammoBarEnd = ammoBarStart + ammo * resoChange * 25  # For getting a constant bar width ~ Dylan
-                        thickness = resoChange  # So I don't have to keep typing 4 ~ Dylan
+                        maxBarSize = ammoBarStart + 1 * 25  # TODO should be constant, don't set every frame pls
+                        ammoBarEnd = ammoBarStart + ammo * 1 * 25  # For getting a constant bar width ~ Dylan
+                        thickness = 1  # So I don't have to keep typing 4 ~ Dylan
 
                         # ADDITION #1 - 'Running out of ammo' change
 
@@ -441,7 +476,7 @@ if __name__ == '__main__':
                         if ammo < 0.2:
                             colour = RED  # If low % of ammo remaining, change bar to red ~ Dylan
 
-                        barY = HEIGHT - 20 * resoChange + ammoBarPositionModifier
+                        barY = HEIGHT - 20 * 1 + ammoBarPositionModifier
                         pygame.draw.line(screen, colour, [ammoBarStart, barY], [ammoBarEnd, barY], thickness)
 
                         # ADDITION #2  - Simple ammo counter
@@ -486,8 +521,9 @@ if __name__ == '__main__':
             enemySprites = pygame.sprite.Group()
 
             # 15:9 is a good ratio
-            xNodes = 15
-            yNodes = 9
+            nodeMultiplier = 3  # This determines the level 'size' - TODO make level select control this
+            xNodes = 5 * nodeMultiplier
+            yNodes = 3 * nodeMultiplier
             playerNodes = setup_nodes()
 
             player = Player()
@@ -497,7 +533,7 @@ if __name__ == '__main__':
             surf.fill(BLACK)
             surf.set_alpha(10)
 
-            screen.fill(BLACK)
+            main_surf.fill(BLACK)
 
             # -------- Main Program Loop -----------
             while not done:
@@ -505,6 +541,9 @@ if __name__ == '__main__':
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         done = True
+                    if event.type == pygame.VIDEORESIZE:
+                        change_resolution(event.w, event.h)
+                        draw_menu()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_w:
                             player.move(0)
@@ -560,19 +599,19 @@ if __name__ == '__main__':
                         if i == 0:
                             # spawn at top
                             y = -30
-                            x = random.randint(-30, WIDTH + 30)
+                            x = random.randint(-30, BASEWIDTH + 30)
                         elif i == 1:
                             # spawn at bottom
-                            y = HEIGHT + 30
-                            x = random.randint(-30, WIDTH + 30)
+                            y = BASEHEIGHT + 30
+                            x = random.randint(-30, BASEWIDTH + 30)
                         elif i == 2:
                             # spawn at right
-                            x = WIDTH + 30
-                            y = random.randint(-30, HEIGHT + 30)
+                            x = BASEWIDTH + 30
+                            y = random.randint(-30, BASEHEIGHT + 30)
                         elif i == 3:
                             # spawn at left
                             x = -30
-                            y = random.randint(-30, HEIGHT + 30)
+                            y = random.randint(-30, BASEHEIGHT + 30)
                         else:
                             print("ERROR")
 
@@ -619,26 +658,24 @@ if __name__ == '__main__':
                 #                enemy2.take_damage(health1)
 
                 # --- Drawing code should go here
-                screen.blit(surf, [0, 0])
+                main_surf.blit(surf, [0, 0])
 
                 for pos in playerNodes:
-                    pygame.draw.line(screen, WHITE, pos, pos, 1)
+                    pygame.draw.line(main_surf, WHITE, pos, pos, 1)
 
                 # allSprites.clear(screen, background) # Don't think this is required
-                playerSprites.draw(screen)
+                playerSprites.draw(main_surf)
                 player.draw_ammo()
 
-                bulletSprites.draw(screen)
-                enemySprites.draw(screen)
+                bulletSprites.draw(main_surf)
+                enemySprites.draw(main_surf)
                 for enemy in enemySprites:
                     enemy.lifebar()
 
-                # screen.blit(submenuFont.render(str(clock.get_fps()), False, WHITE), [0, 0])
-
                 # --- Go ahead and update the screen with what we've drawn.
+                pygame.transform.scale(main_surf, (WIDTH, HEIGHT), screen)
+                #screen.blit(main_surf, [0, 0])
                 pygame.display.flip()
-
-                # TODO put the multiprocessing stuff here
 
                 # --- Limit to 60 frames per second
                 clock.tick(fps)

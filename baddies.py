@@ -1,6 +1,7 @@
 import time
 import math
 from definitions import *
+from mainScript import *
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -20,13 +21,13 @@ class Enemy(pygame.sprite.Sprite):
     speed = 0
     colour = WHITE
 
-    radius = 0 * resoChange
+    radius = 0 * objectSize
 
     # example position -> [0, 1]
     def __init__(self, position, radius):
         self.x = position[0]
         self.y = position[1]
-        self.radius = radius * resoChange
+        self.radius = radius * objectSize * resoScale
 
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.radius * 2, self.radius * 2])
@@ -107,7 +108,7 @@ class Enemy(pygame.sprite.Sprite):
 
 class Fodder(Enemy):
     def __init__(self, position):
-        self.radius = 0.5 * resoChange  # increase size of enemy
+        self.radius = 0.5 * objectSize  # increase size of enemy
         super(Fodder, self).__init__(position, self.radius)
 
         h = self.radius
@@ -120,7 +121,7 @@ class Fodder(Enemy):
 
         self.health = 10
         self.maxHealth = self.health
-        self.speed = 0.25 * resoChange
+        self.speed = 0.25 * objectSize# * resoScale
         self.dead = False
 
     def update(self):

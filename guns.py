@@ -2,7 +2,6 @@ import random
 import math
 from definitions import *
 
-
 class Bullet(pygame.sprite.Sprite):
     """
     Abstract class for bullets. Each one disappears at a different rate, has different shape, colour, etc
@@ -101,14 +100,14 @@ class SprayGunBullet(Bullet):
         self.timeToLive = 300
         self.speed = math.fabs(speed)/10 + random.randrange(0, 20,
                                                          1) / 20  # todo if shooting the opposite direction of movement, it still goes faster
-        self.speed *= resoChange
+        self.speed *= objectSize * resoScale
         self.angle = direction * math.radians(90) + math.radians(random.randrange(-10, 10, 1))
         self.speedDecay = 10
         self.colour = BLUE
 
         self.damage = 1  # - weak bullets
 
-        self.size = int(0.25 * resoChange)
+        self.size = int(0.25 * objectSize * resoScale)
 
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.size * 2, self.size * 2])
