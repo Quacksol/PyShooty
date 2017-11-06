@@ -15,8 +15,8 @@ GREEN = pygame.Color(0, 255, 0)
 RED = pygame.Color(255, 0, 0)
 BLUE = pygame.Color(0, 0, 255)
 
-fs = True
-fs = False
+fullscreen = True
+fullscreen = False
 
 objectSize = 4
 
@@ -27,17 +27,19 @@ BASEWIDTH = WIDTH * resoScale  # Width determined by resolution - use this to dr
 BASEHEIGHT = HEIGHT * resoScale
 
 # Set the width and height of the screen [width, height]
-if fs:
+if fullscreen:
     objectSize = 10  # Change this to change the resolution of the game screen.
 else:
     objectSize = 4
-if fs:
+if fullscreen:
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 else:
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 main_surf = pygame.Surface([BASEWIDTH, BASEHEIGHT])
 
 fps = 60  # Tasty
 clock = pygame.time.Clock()
 dt = 0  # Used to count a second, leave it
+
+

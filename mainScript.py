@@ -3,12 +3,12 @@ This script is the main thing that is called. It initialises pygame and all that
 It basically is the menu. This while loop does the menu stuff,
 and when the game starts exits that loops and goes into the game loop enters another loop.
 """
-# imports
-
 
 if __name__ == '__main__':
     from definitions import *
+    import fileReader
 
+    fileReader.read_game_settings()
     # setup stuff
     pygame.display.set_caption("Real Life Video Game")
     pygame.init()
@@ -21,18 +21,31 @@ if __name__ == '__main__':
 
     # Define stuff that is for both menu and in-game
     def change_resolution(width, height):
-        global screen, HEIGHT, WIDTH
-
         """
         Change the resolution. Only do this in the menu, too much effort to change the sizes of everything in-game.
         :param height: New screen height
         :param width: New screen width
         :return: None
         """
+        global screen, HEIGHT, WIDTH
         WIDTH = width
         HEIGHT = height
         screen = pygame.Surface([WIDTH, WIDTH])
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+
+    def change_fullscreen():
+        """
+        Changes the game from windowed to fullscreen, and vice-versa, depending on current state.
+        :return: None
+        """
+        global fullscreen, screen
+        fullscreen = not fullscreen
+        if fullscreen:
+            screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+        else:
+            screen = pygame.display.set_mode((WIDTH, HEIGHT))
+            # Set to windowed based on saved reso settings
+
 
     while not quitGame:
         inMenu = True
@@ -41,16 +54,16 @@ if __name__ == '__main__':
             menuTable = [[[1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6]],  # Main menu
                          [[1, 0], [0, 0]],                                  # Level Select
                          [[2, 0], [0, 0]],                                  # Endless
-                         [[3, 0], [0, 0]],                                  # Options
+                         [[3, 0], [3, 0], [0, 0]],                          # Options
                          [[4, 0], [0, 0]],                                  # Progress
                          [[5, 0], [0, 0]],                                  # Credits
                          [[7, 0], [0, 0]],                                  # Exit confirmation
                          []]                                                # Actually exit
-
+            # Up, down, left, right
             cursorTable = [[[5, 1, 0, 0], [0, 2, 1, 1], [1, 3, 2, 2], [2, 4, 3, 3], [3, 5, 4, 4], [4, 0, 5, 5]],
                            [[0, 1, 0, 0], [0, 1, 0, 0]],
                            [[0, 1, 0, 0], [0, 1, 0, 0]],
-                           [[0, 1, 0, 0], [0, 1, 0, 0]],
+                           [[0, 1, 0, 0], [0, 2, 0, 0], [1, 3, 0, 0]],
                            [[0, 1, 0, 0], [0, 1, 0, 0]],
                            [[0, 1, 0, 0], [0, 1, 0, 0]],
                            [[0, 0, 0, 1], [0, 0, 0, 1]]
@@ -116,6 +129,34 @@ if __name__ == '__main__':
                 cursorState = 0
                 draw_menu()
 
+            def do_menu(direction):
+                """
+                Do a menu action, whether that be a special function or generic menu change.
+                Determined by the current menu state + direction.
+                :param direction: 0 for up, 1 for down a menu.
+                :return: None
+                """
+                global menuState, cursorState
+                special = False
+                if direction == 1:
+                    # Just change menu down, esc never does a special function.
+                    move_menu(direction)
+                else:
+                    if menuState == 0:  # Main menu
+                        pass
+                    elif menuState == 1:  # Level select
+                        pass  # TODO Choose a particular level
+                    elif menuState == 2:  # Endless
+                        pass
+                    elif menuState == 3:  # Options
+                        pass  # FIXME Change resolutions
+                        if cursorState == 0:
+                            change_fullscreen()
+                            special = True
+
+                if not special:  # :'(
+                    move_menu(direction)
+
 
             class MenuOption:
                 """
@@ -173,8 +214,10 @@ if __name__ == '__main__':
                 global displaySurface, drawList
                 displaySurface = optionsSurface
                 drawList = []
-                option1 = MenuOption('This is an option', [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
+                option1 = MenuOption('Change Fullscreen', [2*(BASEWIDTH/10), 3 * (BASEHEIGHT / 10)])
                 drawList.append(option1)
+                option2 = MenuOption("Another option", [2*(BASEWIDTH/10), 4 * (BASEHEIGHT / 10)])
+                drawList.append(option2)
 
                 exitScreen = MenuOption('Exit (Esc)', [2*(BASEWIDTH/10), 8 * (BASEHEIGHT / 10)])
                 drawList.append(exitScreen)
@@ -252,13 +295,13 @@ if __name__ == '__main__':
 
                         # Cursor select
                         if event.key == pygame.K_SPACE:
-                            move_menu(0)
+                            do_menu(0)
                             # gameStart = True
                             # inMenu = False
 
                         # Quit game
                         if event.key == pygame.K_ESCAPE:
-                            move_menu(1)
+                            do_menu(1)
 
                         # print(menuState, cursorState)
 
@@ -577,10 +620,6 @@ if __name__ == '__main__':
                 if keys[pygame.K_ESCAPE]:
                     done = True
 
-                if keys[pygame.K_o]:
-                    change_resolution(0)
-                if keys[pygame.K_p]:
-                    change_resolution(1)
 
                     # --- Game logic should go here
 
@@ -689,4 +728,5 @@ if __name__ == '__main__':
             inMenu = True
 
     # Close the window and quit.
+    fileReader.save_game_settings()
     pygame.quit()
